@@ -2,8 +2,11 @@
 import { Navbar } from '../components/navbar';
 import Image from 'next/image';
 import { useEffect } from 'react';
+import SignOutButton from '../components/signOut';
+import { useSession } from 'next-auth/react'
 
 export default function Home() {
+    const { data: session } = useSession()
 
     function GetMemberList() {
         return (
@@ -48,6 +51,7 @@ export default function Home() {
     return (
         <main className="flex flex-col">
             <Navbar />
+            <SignOutButton />
             <div className="flex justify-between items-start"> 
             <div className='flex space-y-10 flex-col border-r border-blue-900 pt-5 pr-10 pl-10 text-blue-500 h-screen'>
                 <h1 className='text-blue-500 font-bold text-2xl'>Nav</h1>

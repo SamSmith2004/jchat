@@ -59,7 +59,7 @@ export function CredentialsForm(props : CredentialsFormProps) {
                 required
                 className="mt-2 rounded-sm p-3 text-lg w-full max-w-xs text-black" />
             </div>
-            <button type="submit" className="mt-4 px-6 py-3 bg-blue-500 text-white font-semibold rounded text-lg">Sign Up</button>
+            <button type="submit" className="mt-4 px-6 py-3 bg-blue-500 text-white font-semibold rounded text-lg">Sign In</button>
         </form>
     )
 };

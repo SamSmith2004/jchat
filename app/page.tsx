@@ -1,13 +1,19 @@
-import { GoogleSignInButton } from "@/app/components/authButton";
-import { GoogleSignUpButton } from "@/app/components/authButton"
-//import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
 import { Navbar } from './components/navbar';
+import { GoogleSignInButton } from "@/app/components/authButton";
+import { GoogleSignUpButton } from "@/app/components/authButton";
 import { CredentialsForm } from './components/credentialsForm';
-import { getCsrfToken } from 'next-auth/react';
 import SignUpForm from "./components/signUpForm";
 
-export default function SignIn() {
+import { authConfig } from "@/lib/auth";
+import { redirect } from 'next/navigation';
+import { getServerSession } from "next-auth";
+import { getCsrfToken } from 'next-auth/react';
+
+export default async function SignIn() {
+    const session = await getServerSession(authConfig);
+
+    console.log('Session', session);
+    if (session?.user?.email !== undefined) return redirect('/home')
 
     return (
         <main>

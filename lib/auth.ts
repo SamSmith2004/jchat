@@ -1,9 +1,13 @@
-import { NextAuthOptions, User } from 'next-auth';
+import { NextAuthOptions, User, getServerSession } from 'next-auth';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
+
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-//import GithubProvider from 'next-auth/providers/github';
-import { pool } from '@/backend/src/config/database'; // Import your database connection
+import GoogleProvider from 'next-auth/providers/google'; 
+
 import bcrypt from 'bcrypt';
+import { pool } from '@/backend/src/config/database';
 import { RowDataPacket } from 'mysql2';
 
 interface DbUser extends RowDataPacket {
@@ -85,3 +89,10 @@ export const authConfig: NextAuthOptions = {
     signIn: '/', //signin page path
   },
 };
+
+export async function loginIsRequiredServer() {
+  const session = await getServerSession(authConfig);
+  if (!session) {
+    return redirect('/');
+  }
+}
