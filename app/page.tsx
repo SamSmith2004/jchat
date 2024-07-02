@@ -1,4 +1,3 @@
-import { Navbar } from './components/navbar';
 import { GoogleSignInButton } from "@/app/components/authButton";
 import { GoogleSignUpButton } from "@/app/components/authButton";
 import { CredentialsForm } from './components/credentialsForm';
@@ -17,7 +16,6 @@ export default async function SignIn() {
 
     return (
         <main>
-            <Navbar />
             <h1 className="flex justify-center items-center text-blue-500 text-5xl mt-15 font-extrabold mt-10">Welcome to JayChat</h1>
             <div className="flex justify-center items-center mt-10">
                 <div className='flex'>
