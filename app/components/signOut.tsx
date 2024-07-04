@@ -6,7 +6,7 @@ const SignOutButton = () => {
   };
 
   return (
-    <button className='px-6 py-3 bg-blue-500 text-white font-semibold rounded text-lg' onClick={handleSignOut}>Sign Out</button>
+    <button className='ml-5 text-blue-500 font-semibold text-lg' onClick={handleSignOut}>Sign Out</button>
   );
 };
 

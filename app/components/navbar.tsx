@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import SignOutButton from './signOut';
 
 export function Navbar() {
     return (
@@ -8,6 +9,7 @@ export function Navbar() {
                 <Link href="/home">
                     <Image src="/logo-placeholder.png" alt="logo" width={20} height={20}/>
                 </Link>
+                <SignOutButton />
             </div>
             <ul className="flex list-none m-0 p-0 text-xl font-bold">
                 <li className="mr-6">
