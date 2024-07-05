@@ -27,6 +27,13 @@ export default function Settings() {
         router.push(`/settings?list=${newListType}`); // Update URL
     }
 
+    const [notifEnabled, setNotifEnabled] = useState(true);
+    function toggleNotifs() {
+        //Will Add logic to disable notifications here later
+
+        setNotifEnabled(!notifEnabled);
+    }
+
     function renderSettingsList() {
         switch (listType) {
             case "appearance":
@@ -105,11 +112,14 @@ export default function Settings() {
     function NotifSettings() {
         return (
             <>
-            <form>
-                <label className="text-blue-500">Notif</label>
-                <input type="text" placeholder="Username" />
-                <button>Notif</button>
-            </form>
+            <h1 className="text-blue-500 text-4xl font-extrabold ">Notification Settings</h1>
+            <div className="flex gap-2">
+                <h2 className="text-blue-500 text-xl font-bold mt-1">Notifications:</h2>
+                <button 
+                className="px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+                onClick={toggleNotifs}
+                >{notifEnabled ? 'Disable' : 'Enable'}</button>
+            </div>
             </>
         );
     }
@@ -118,9 +128,10 @@ export default function Settings() {
         return (
             <>
             <form>
-                <label className="text-blue-500">Privacy</label>
-                <input type="text" placeholder="Username" />
-                <button>Privacy</button>
+                <h1></h1>
+                <form>
+
+                </form>
             </form>
             </>
         );
