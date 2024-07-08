@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import SignOutButton from './signOut';
+import SignOutButton from './login/signOut';
 
 export function Navbar() {
     return (

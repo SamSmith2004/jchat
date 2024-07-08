@@ -1,7 +1,7 @@
-import { GoogleSignInButton } from "@/app/components/authButton";
-import { GoogleSignUpButton } from "@/app/components/authButton";
-import { CredentialsForm } from './components/credentialsForm';
-import SignUpForm from "./components/signUpForm";
+import { GoogleSignInButton } from "@/app/components/login/authButton";
+import { GoogleSignUpButton } from "@/app/components/login/authButton";
+import { CredentialsForm } from './components/login/credentialsForm';
+import SignUpForm from "./components/login/signUpForm";
 
 import { authConfig } from "@/lib/auth";
 import { redirect } from 'next/navigation';

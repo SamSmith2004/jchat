@@ -1,5 +1,11 @@
 'use client';
 import { Navbar } from "../components/navbar";
+import OnlineFriends from "@/app/components/friendLists/onlineFriends";
+import AllFriends from "@/app/components/friendLists/allFriends";
+import PendingFriends from "@/app/components/friendLists/pendingFriends";
+import Blocked from "@/app/components/friendLists/blocked";
+import AddFriend from "@/app/components/friendLists/addFriends";
+
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation' 
@@ -41,97 +47,6 @@ export default function Friends() {
             default:
                 return <OnlineFriends />;
         }
-    }
-
-    function OnlineFriends() {
-        return (
-            <>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample friend</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample friend2</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample friend3</h2>
-            </div>
-            </>
-        );
-    }
-
-    function AllFriends() {
-        let status = "online";
-        let status2 = "offline";
-        let status3 = "idle";
-
-        return (
-            <>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={70}/>
-                <h2 className='text-blue-300 text-2xl'>sample friend <br></br>{status}</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={70}/>
-                <h2 className='text-blue-300 text-2xl'>sample friend2 <br></br>{status2}</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={70}/>
-                <h2 className='text-blue-300 text-2xl'>sample friend3 <br></br>{status3}</h2>
-            </div>
-            </>
-        );
-    }
-
-    function PendingFriends() {
-        return (
-            <>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample user</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample user2</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample user3</h2>
-            </div>
-            </>
-        );
-    }
-
-    function Blocked() {
-        return (
-            <>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample user</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample user2</h2>
-            </div>
-            <div className="flex space-x-5">
-                <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                <h2 className='text-blue-300 text-2xl'>sample user3</h2>
-            </div>
-            </>
-        );
-    }
-
-    function AddFriend() {
-        return (
-            <>
-            <form>
-                <input type="text" placeholder="Username" />
-                <button>Add</button>
-            </form>
-            </>
-        );
     }
 
     return (

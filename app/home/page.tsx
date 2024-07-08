@@ -2,7 +2,7 @@
 import { Navbar } from '../components/navbar';
 import Image from 'next/image';
 import { useEffect } from 'react';
-import SignOutButton from '../components/signOut';
+import SignOutButton from '../components/login/signOut';
 import { useSession } from 'next-auth/react'
 
 export default function Home() {
