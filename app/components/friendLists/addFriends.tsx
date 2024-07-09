@@ -55,7 +55,7 @@ export default function AddFriend() {
             //console.log('Received response:', result);
 
             if (response.ok) {
-                setMessage('Friend request sent successfully');
+                setMessage('Friend request sent successfully to ' + username);
                 setUsername('');
             } else {
                 setMessage(result.error || 'Failed to send friend request');
@@ -69,15 +69,19 @@ export default function AddFriend() {
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <input 
-                    type="text" 
-                    placeholder="Username" 
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-                <button type="submit">Add</button>
+                <h1 className='font-bold text-2xl text-center mb-4'>Add a Friend!</h1>
+                <div>
+                    <input 
+                        type="text" 
+                        placeholder="Username" 
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className='border border-gray-300 p-2 rounded-md rounded-r-none'
+                    />
+                    <button type="submit" className='border border-blue-900 bg-gray-900 h-full rounded-md rounded-l-none p-2'>Add</button>
+                </div>
             </form>
-            {message && <p>{message}</p>}
+            <h2 className='font-bold text-lg'>{message && <p>{message}!</p>}</h2>
         </>
     );
 }

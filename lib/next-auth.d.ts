@@ -2,8 +2,12 @@ import 'next-auth';
 
 declare module 'next-auth' {
 //Extends the built-in session types with additional properties.
+interface User {
+  username?: string;
+}
 interface Session {
-    user: {
+    user: User & {
+      username?: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;

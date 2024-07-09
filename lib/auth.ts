@@ -1,20 +1,14 @@
-import { NextAuthOptions, User, getServerSession } from 'next-auth';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { redirect } from 'next/navigation';
-
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google'; 
 
+import { NextAuthOptions, User as NextAuthUser, getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 import bcrypt from 'bcrypt';
 import { pool } from '@/backend/src/config/database';
-import { RowDataPacket } from 'mysql2';
-import { Session } from 'inspector';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
 
-interface DbUser extends RowDataPacket {
-    id: string;
-    email: string;
-    password: string;
+interface CustomUser extends NextAuthUser {
+  username?: string;
 }
 
 export const authConfig: NextAuthOptions = {
@@ -62,7 +56,7 @@ export const authConfig: NextAuthOptions = {
               id: userWithoutPassword.UserID,
               email: userWithoutPassword.Email,
               username: userWithoutPassword.Username,
-            } as User;
+            } as NextAuthUser;
 
           } else {
             console.log('Invalid password');
@@ -84,6 +78,15 @@ export const authConfig: NextAuthOptions = {
           access_type: "offline",
           response_type: "code"
         }
+      },
+      profile(profile): CustomUser {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          username: profile.email.split('@')[0] // Use email prefix as username
+        }
       }
     }),
     /**GithubProvider({
@@ -92,16 +95,47 @@ export const authConfig: NextAuthOptions = {
     }),**/
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        const customUser = user as CustomUser;
+        try {
+          // Check if user exists
+          const [existingUsers] = await pool.query<RowDataPacket[]>(
+            'SELECT * FROM users WHERE email = ?',
+            [customUser.email]
+          );
+  
+          if (existingUsers.length === 0) {
+            // User doesn't exist, create a new one
+            const [result] = await pool.query<ResultSetHeader>(
+              'INSERT INTO users (email, username) VALUES (?, ?)',
+              [customUser.email, customUser.username]
+            );
+            customUser.id = result.insertId.toString();
+          } else {
+            // User exists, update their information
+            await pool.query(
+              'UPDATE users SET username = ? WHERE email = ?',
+              [customUser.username, customUser.email]
+            );
+            customUser.id = existingUsers[0].UserID.toString();
+          }
+          return true;
+        } catch (error) {
+          console.error('Error saving Google user:', error);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
-        // Spread all properties from user into token
         token = { ...token, ...user };
       }
       return token;
     },
     async session({ session, token }) {
-      // Spread all properties from token into session.user
-      session.user = { ...session.user, ...token };
+      session.user = { ...session.user, ...token } as CustomUser;
       return session;
     },
   },
