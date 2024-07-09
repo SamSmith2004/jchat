@@ -9,8 +9,10 @@ export const pool = mysql.createPool({
 
 export async function executeQuery<T>(query: string, params: any[] = []): Promise<T> {
   try {
+    console.log('Executing query:', query, 'with params:', params);
     const [results] = await pool.execute(query, params);
-    return results as T;
+    console.log('Query results:', results);
+    return results as T; // Type assertion
   } catch (error) {
     console.error('Database query error:', error);
     throw error;

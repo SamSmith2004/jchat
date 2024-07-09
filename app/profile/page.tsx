@@ -2,14 +2,23 @@
 import { Navbar } from "../components/navbar";
 import Image from "next/image";
 
-import { useSession } from 'next-auth/react'
-import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { CustomSession } from '../types/customSession';
+import { useState, useEffect } from 'react';
 
 export default function Profile() {
-    const { data: session } = useSession()
+    const { data: session } = useSession() as { data: CustomSession | null };
 
-    const [username, setUsername] = useState(session?.user?.name || '');
+    const [username, setUsername] = useState('');
     const [bio, setBio] = useState("No bio available");
+
+    useEffect(() => {
+        if (session?.user?.username) {
+            setUsername(session.user.username);
+        } else if (session?.user?.name) {
+            setUsername(session.user.name);
+        }
+    }, [session]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,7 +36,7 @@ export default function Profile() {
                     height={100} width={100}
                     />
                 </div>}
-                <h1 className="text-5xl text-blue-500 mt-5">Welcome back {session?.user?.name || 'unknown'}!</h1>
+                <h1 className="text-5xl text-blue-500 mt-5">Welcome back {username || 'unknown'}!</h1>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-5">
                     <div className="flex flex-col items-center">
                         <label className="text-2xl text-blue-500">Username</label>

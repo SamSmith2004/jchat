@@ -9,6 +9,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcrypt';
 import { pool } from '@/backend/src/config/database';
 import { RowDataPacket } from 'mysql2';
+import { Session } from 'inspector';
 
 interface DbUser extends RowDataPacket {
     id: string;
@@ -55,8 +56,13 @@ export const authConfig: NextAuthOptions = {
 
           if (isValid) {
             console.log('Password is valid');
-            const { password, ...userWithoutPassword } = user;
-            return userWithoutPassword as User;
+            const { Password, ...userWithoutPassword } = user;
+            //console.log('User:', userWithoutPassword, 'id', userWithoutPassword.UserID, 'email', userWithoutPassword.Email, 'username', userWithoutPassword.Username);
+            return {
+              id: userWithoutPassword.UserID,
+              email: userWithoutPassword.Email,
+              username: userWithoutPassword.Username,
+            } as User;
 
           } else {
             console.log('Invalid password');
@@ -85,6 +91,20 @@ export const authConfig: NextAuthOptions = {
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     }),**/
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        // Spread all properties from user into token
+        token = { ...token, ...user };
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Spread all properties from token into session.user
+      session.user = { ...session.user, ...token };
+      return session;
+    },
+  },
   pages: {
     signIn: '/', //signin page path
   },
