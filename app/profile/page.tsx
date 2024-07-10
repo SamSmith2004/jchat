@@ -3,7 +3,7 @@ import { Navbar } from "../components/navbar";
 import Image from "next/image";
 
 import { useSession } from 'next-auth/react';
-import { CustomSession } from '../types/customSession';
+import { CustomSession } from '@/app/types/customSession';
 import { useState, useEffect } from 'react';
 
 export default function Profile() {
