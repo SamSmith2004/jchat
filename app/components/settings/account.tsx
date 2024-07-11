@@ -1,20 +1,22 @@
-
+import { useSession } from 'next-auth/react';
+import { CustomSession } from '@/app/types/customSession';
 
 const AccountSettings = () => {
+    const { data: session } = useSession() as { data: CustomSession | null };
 
     return (
         <>
             <h1 className="text-blue-500 text-4xl font-extrabold ">Account Settings</h1>
             <form>
                 <label className="text-blue-500 text-xl font-bold mr-2">Username:</label>
-                <input type="text" placeholder="Username" 
+                <input type="text" placeholder={session?.user.username || "Username"} 
                 className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400 
                 placeholder:text-blue-400 mt-2 w-96 p-2" />
                 <button className="ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg">Update</button>
             </form>
             <form>
                 <label className="text-blue-500 text-xl font-bold mr-2 ml-10">Email:</label>
-                <input type="text" placeholder="Email" 
+                <input type="text" placeholder={session?.user.email || "Email"} 
                 className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400 
                 placeholder:text-blue-400 mt-2 w-96 p-2" />
                 <button className="ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg">Update</button>
