@@ -4,12 +4,15 @@ import mysql from 'mysql2/promise';
 
 export async function POST(req: NextRequest) {
   const connection = await pool.getConnection();
-
   try {
-    // Extract the requestId from the request body
     const { requestId } = await req.json();
-    
-    await connection.beginTransaction(); 
+    console.log('Received requestId:', requestId);
+
+    if (requestId === undefined) {
+      throw new Error('requestId is undefined');
+    }
+
+    await connection.beginTransaction();
 
     // Update the status of the friend request to "accepted"
     await connection.execute(
@@ -22,7 +25,15 @@ export async function POST(req: NextRequest) {
       'SELECT sender_id, receiver_id FROM friend_requests WHERE id = ?',
       [requestId]
     );
-    const request = requests[0]; 
+
+    if (requests.length === 0) {
+      throw new Error('Friend request not found');
+    }
+
+    const request = requests[0];
+    if (request.sender_id === undefined || request.receiver_id === undefined) {
+      throw new Error('sender_id or receiver_id is undefined');
+    }
 
     // Insert records into the friends table to reflect the mutual friendship
     await connection.execute(
@@ -32,17 +43,16 @@ export async function POST(req: NextRequest) {
 
     // Commit the transaction to finalize the changes in the database
     await connection.commit();
-    
+
     return NextResponse.json({ message: 'Friend request accepted successfully' });
-  } 
-  catch (error) {
-    // Rollback any changes if an error occurs during the transaction
-    await connection.rollback();
+
+  } catch (error : any) {
+    await connection.rollback(); // Rollback any changes if an error occurs during the transaction
+    
     console.error('Error accepting friend request:', error);
-    return NextResponse.json({ error: 'Failed to accept friend request' }, { status: 500 });
-  } 
-  finally {
-    // Release the database connection back to the pool
+    return NextResponse.json({ error: 'Failed to accept friend request', details: error.message }, { status: 500 });
+
+  } finally {
     connection.release();
   }
 }

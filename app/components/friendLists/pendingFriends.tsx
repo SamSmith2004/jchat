@@ -3,13 +3,40 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CustomSession } from '@/app/types/customSession';
-interface PendingFriend {
-  Username: string;
-}
-export default function PendingFriends() {
 
+interface PendingFriend {
+    id: number;
+    Username: string;
+}
+
+export default function PendingFriends() {
     const { data: session } = useSession() as { data: CustomSession | null };
     const [pendingFriends, setPendingFriends] = useState<PendingFriend[]>([]);
+
+    async function acceptFriendRequest(requestId: number) {
+        console.log('Sending requestId:', requestId);
+        try {
+            const response = await fetch('/api/friends/accept', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ requestId }),
+            });
+   
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to accept friend request');
+            }
+   
+            const data = await response.json();
+            console.log('Response:', data);
+   
+            setPendingFriends(prevFriends => prevFriends.filter(friend => friend.id !== requestId));
+        } catch (error) {
+            console.error('Error accepting friend request:', error);
+        }
+    }
    
     useEffect(() => {
         const fetchFriends = async () => {
@@ -19,7 +46,8 @@ export default function PendingFriends() {
                 if (!response.ok) {
                     throw new Error('Failed to fetch pending friends');
                 }
-                const data = await response.json();
+                const data: PendingFriend[] = await response.json();
+                console.log('Fetched pending friends:', JSON.stringify(data, null, 2));
                 setPendingFriends(data);
             } catch (error) {
                 console.error('Error fetching pending friends:', error);
@@ -30,32 +58,29 @@ export default function PendingFriends() {
             fetchFriends();
         }
     }, [session]);
+   
     return (
         <>
             <h1 className="text-blue-500 text-3xl font-bold">Pending Friends</h1>
             <div>
-                <h2 className="text-blue-500 text-2xl text-center font-semibold mb-5">Outgoing:</h2>
-                {pendingFriends.length > 0 ? (
-                    pendingFriends.map((friend, index) => (
-                        <div key={index} className="flex space-x-5">
-                            <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                            <h2 className='text-blue-500 text-2xl'>{friend.Username || 'Error'}</h2>
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-white">No pending friends</p>
-                )}
-            </div>
-            <div>
                 <h2 className="text-blue-500 text-2xl text-center font-semibold mb-5">Incoming:</h2>
-                {/**TODO: Add incoming friends list **/}
                 {pendingFriends.length > 0 ? (
-                    pendingFriends.map((friend, index) => (
-                        <div key={index} className="flex space-x-5">
+                    pendingFriends.map((friend) => (
+                        <div key={friend.id} className="flex space-x-5">
                             <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                            <h2 className='text-blue-500 text-2xl pr-10'>{friend.Username || 'Error'}</h2>
-                            <button className="bg-blue-500 text-white px-3 py-1 rounded-md hover:font-extrabold">Accept</button>
-                            <button className="bg-red-500 text-white px-3 py-1 rounded-md hover:font-extrabold">Reject</button>
+                            <h2 className='text-blue-500 text-2xl pr-10'>{friend.Username}</h2>
+                            <button
+                                className="bg-blue-500 text-white px-3 py-1 rounded-md hover:font-extrabold"
+                                onClick={() => acceptFriendRequest(friend.id)}
+                            >
+                                Accept
+                            </button>
+                            <button
+                                className="bg-red-500 text-white px-3 py-1 rounded-md hover:font-extrabold"
+                                onClick={() => {/* Implement reject function here later*/}}
+                            >
+                                Reject
+                            </button>
                         </div>
                     ))
                 ) : (
