@@ -38,6 +38,7 @@ export default function PendingFriends() {
     }
 
     async function rejectFriendRequest(requestId: number) {
+        console.log('Rejecting request with ID:', requestId);
         try {
             const response = await fetch('/api/friends/reject', {
                 method: 'POST',
@@ -46,14 +47,16 @@ export default function PendingFriends() {
                 },
                 body: JSON.stringify({ requestId }),
             });
-   
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to reject friend request');
             }
-   
+    
             const data = await response.json();
-            console.log('Response:', data);;
+            console.log('Response:', data);
+    
+            setPendingFriends(prevFriends => prevFriends.filter(friend => friend.id !== requestId));
         } catch (error) {
             console.error('Error rejecting friend request:', error);
         }
