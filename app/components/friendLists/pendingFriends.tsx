@@ -14,7 +14,6 @@ export default function PendingFriends() {
     const [pendingFriends, setPendingFriends] = useState<PendingFriend[]>([]);
 
     async function acceptFriendRequest(requestId: number) {
-        console.log('Sending requestId:', requestId);
         try {
             const response = await fetch('/api/friends/accept', {
                 method: 'POST',
@@ -37,6 +36,28 @@ export default function PendingFriends() {
             console.error('Error accepting friend request:', error);
         }
     }
+
+    async function rejectFriendRequest(requestId: number) {
+        try {
+            const response = await fetch('/api/friends/reject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ requestId }),
+            });
+   
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to reject friend request');
+            }
+   
+            const data = await response.json();
+            console.log('Response:', data);;
+        } catch (error) {
+            console.error('Error rejecting friend request:', error);
+        }
+    }
    
     useEffect(() => {
         const fetchFriends = async () => {
@@ -47,7 +68,6 @@ export default function PendingFriends() {
                     throw new Error('Failed to fetch pending friends');
                 }
                 const data: PendingFriend[] = await response.json();
-                console.log('Fetched pending friends:', JSON.stringify(data, null, 2));
                 setPendingFriends(data);
             } catch (error) {
                 console.error('Error fetching pending friends:', error);
@@ -77,7 +97,7 @@ export default function PendingFriends() {
                             </button>
                             <button
                                 className="bg-red-500 text-white px-3 py-1 rounded-md hover:font-extrabold"
-                                onClick={() => {/* Implement reject function here later*/}}
+                                onClick={() => rejectFriendRequest(friend.id)}
                             >
                                 Reject
                             </button>

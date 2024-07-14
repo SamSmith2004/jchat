@@ -1,24 +1,49 @@
+'use client';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { CustomSession } from '@/app/types/customSession';
 
 export default function AllFriends() {
-    let status = "online";
-    let status2 = "offline";
-    let status3 = "idle";
+    const { data: session } = useSession() as { data: CustomSession | null };
+    const [friendsList, setFriendsList] = useState<CustomSession[]>([]);
+
+    useEffect(() => {
+        if (session?.user?.id) {
+            const userId = Number(session.user.id);
+            fetchFriends(userId);
+        }
+    }, [session]);
+
+    async function fetchFriends(userID: number) {
+        try {
+            const response = await fetch(`/api/friends/list?userId=${userID}`, {
+                method: 'GET',
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to get friends list');
+            }
+            const data = await response.json();
+            setFriendsList(data);
+        } catch (error) {
+            console.error('Error fetching friends:', error);
+        }
+    }
 
     return (
         <>
-        <div className="flex space-x-5">
-            <Image src="/circle.png" alt="placeholder" height={40} width={70}/>
-            <h2 className='text-blue-300 text-2xl'>sample friend <br></br>{status}</h2>
-        </div>
-        <div className="flex space-x-5">
-            <Image src="/circle.png" alt="placeholder" height={40} width={70}/>
-            <h2 className='text-blue-300 text-2xl'>sample friend2 <br></br>{status2}</h2>
-        </div>
-        <div className="flex space-x-5">
-            <Image src="/circle.png" alt="placeholder" height={40} width={70}/>
-            <h2 className='text-blue-300 text-2xl'>sample friend3 <br></br>{status3}</h2>
-        </div>
+            <h1 className="text-blue-500 text-3xl font-bold">Friends:</h1>
+            {friendsList.length > 0 ? (
+                friendsList.map((friend) => (
+                    <div key={friend.UserID} className="flex space-x-5">
+                        <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
+                        <h2 className='text-blue-300 text-2xl'>{friend.Username}</h2>
+                    </div>
+                ))
+            ) : (
+                <p className="text-white">No friends</p>
+            )}
         </>
     );
 }
