@@ -38,7 +38,11 @@ export default function AllFriends() {
                 friendsList.map((friend) => (
                     <div key={friend.UserID} className="flex space-x-5">
                         <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
-                        <h2 className='text-blue-300 text-2xl'>{friend.Username}</h2>
+                        <h2 className='text-blue-300 text-2xl pr-5'>{friend.Username}</h2>
+                        <button 
+                        className='text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
+                        onClick={() => {/** put function to redirect to messaging here */}}
+                        >Message</button>
                     </div>
                 ))
             ) : (

@@ -15,13 +15,13 @@ type ListType = "online" | "all" | "pending" | "blocked" | "add"; // Define the 
 export default function Friends() { 
     const router = useRouter()
     const searchParams = useSearchParams()
-    const [listType, setListType] = useState<ListType>("online");
+    const [listType, setListType] = useState<ListType>("all");
 
     useEffect(() => {
         const paramValue = searchParams.get("list");
         const newListType = isValidListType(paramValue) 
         ? paramValue 
-        : "online"; // Set default list type to online
+        : "all"; // Set default list type to online
         setListType(newListType); 
     }, [searchParams]); // Update Document when searchParams change
 
@@ -36,8 +36,8 @@ export default function Friends() {
 
     function renderFriendList() {
         switch (listType) {
-            case "all":
-                return <AllFriends />;
+            case "online":
+                return <OnlineFriends />;
             case "pending":
                 return <PendingFriends />;
             case "blocked":
@@ -45,7 +45,7 @@ export default function Friends() {
             case "add":
                 return <AddFriend />;
             default:
-                return <OnlineFriends />;
+                return <AllFriends />;
         }
     }
 
