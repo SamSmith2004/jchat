@@ -3,8 +3,13 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CustomSession } from '@/app/types/customSession';
+import StartMessage from '@/app/components/messaging/startMessage';
 
-export default function AllFriends() {
+interface AllFriendsProps {
+    onStartMessage?: (friendId: number, friendUsername: string) => void;
+}
+
+export default function AllFriends({ onStartMessage }: AllFriendsProps) {
     const { data: session } = useSession() as { data: CustomSession | null };
     const [friendsList, setFriendsList] = useState<CustomSession[]>([]);
 
@@ -33,16 +38,25 @@ export default function AllFriends() {
 
     return (
         <>
-            <h1 className="text-blue-500 text-3xl font-bold">Friends:</h1>
+            <h1 className="text-blue-500 text-2xl font-bold">Friends:</h1>
             {friendsList.length > 0 ? (
                 friendsList.map((friend) => (
                     <div key={friend.UserID} className="flex space-x-5">
                         <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
                         <h2 className='text-blue-300 text-2xl pr-5'>{friend.Username}</h2>
-                        <button 
-                        className='text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
-                        onClick={() => {/** put function to redirect to messaging here */}}
-                        >Message</button>
+                        {onStartMessage ? (
+                            <button
+                                className='text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
+                                onClick={() => onStartMessage(friend.UserID, friend.Username)}
+                            >
+                                Message
+                            </button>
+                        ) : (
+                            <StartMessage 
+                                friendId={friend.UserID} 
+                                friendUsername={friend.Username}
+                            />
+                        )}
                     </div>
                 ))
             ) : (

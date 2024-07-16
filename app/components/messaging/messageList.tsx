@@ -27,7 +27,8 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
         <div className="h-64 overflow-y-auto mb-4 p-2 border border-blue-900 rounded">
             {messages.map((message) => (
                 <div key={message.id} className={`mb-2 ${message.sender_id === userId ? 'text-right' : 'text-left'}`}>
-                    <span className={`inline-block p-2 rounded ${message.sender_id === userId ? 'bg-blue-500' : 'bg-gray-500'}`}>
+                    <span className={`inline-block p-2 rounded ${message.sender_id === userId ? 
+                        'border border-blue-400 bg-blue-500 text-white' : 'border border-blue-900 bg-gray-900 text-blue-500'}`}>
                         {message.content}
                     </span>
                 </div>

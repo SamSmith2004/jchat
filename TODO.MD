@@ -1,6 +1,6 @@
 # TODO
-[x] Setup Db
-[x] Add native signup/login
-[x] Setup sessions
-[x] Function friending system
+[x] Messaging system
+[] Fix no conversations bug
+[] Fix html/css for messaging
 [] Add User bio, profiel picture and ability to change username
+[] Implement Websockets over polling for messages
