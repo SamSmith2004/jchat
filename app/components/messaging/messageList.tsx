@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import React from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import io from 'socket.io-client';
 
 interface Message {
     id: number;
@@ -10,6 +12,7 @@ interface Message {
 
 export default function MessageList({ userId, friendId }: { userId: number, friendId: number }) {
     const [messages, setMessages] = useState<Message[]>([]);
+    const socketRef = useRef<any>(null);
 
     const fetchMessages = useCallback(async () => {
         const response = await fetch(`/api/messages/list?userId=${userId}&friendId=${friendId}`);
@@ -19,18 +22,78 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
 
     useEffect(() => {
         fetchMessages();
-        const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
-        return () => clearInterval(interval);
-    }, [fetchMessages]);
+
+        // Set up WebSocket connection
+        socketRef.current = io('http://localhost:8080'); 
+        
+        // Join a room specific to this conversation
+        socketRef.current.emit('join conversation', { userId, friendId });
+
+        // Listen for new messages
+        socketRef.current.on('new message', (message: Message) => {
+            setMessages(prevMessages => [...prevMessages, message]);
+        });
+
+        // Clean up on unmount
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+        };
+    }, [userId, friendId, fetchMessages]);
+
+    // Format message content to wrap at linelength characters and move from right to left
+    const formatMessage = (content: string, isSender: boolean) => {
+        const words = content.split(' ');
+        let lines: string[] = [];
+        let currentLine = '';
+        const linelength = 50;
+
+        words.forEach(word => {
+            if ((currentLine + word).length > linelength) {
+                if (currentLine) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                if (word.length > linelength) {
+                    while (word.length > linelength) {
+                        lines.push(word.slice(0, linelength));
+                        word = word.slice(linelength);
+                    }
+                    if (word) currentLine = word + ' ';
+                } else {
+                    currentLine = word + ' ';
+                }
+            } else {
+                currentLine += word + ' ';
+            }
+        });
+
+        if (currentLine) {
+            lines.push(currentLine.trim());
+        }
+
+        return lines.map((line, index) => (
+            <div key={index} className={`flex ${isSender ? 'justify-end' : 'justify-start'}`}>
+                <span>{line}</span>
+            </div>
+        ));
+    };
 
     return (
-        <div className="h-64 overflow-y-auto mb-4 p-2 border border-blue-900 rounded">
+        <div className="min-h-64 h-auto max-h-[84vh] overflow-y-auto mb-4 p-2 border border-blue-900 rounded">
             {messages.map((message) => (
-                <div key={message.id} className={`mb-2 ${message.sender_id === userId ? 'text-right' : 'text-left'}`}>
-                    <span className={`inline-block p-2 rounded ${message.sender_id === userId ? 
-                        'border border-blue-400 bg-blue-500 text-white' : 'border border-blue-900 bg-gray-900 text-blue-500'}`}>
-                        {message.content}
-                    </span>
+                <div key={message.id} className={`mb-2 flex ${message.sender_id === userId ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`p-2 rounded max-w-[75%] ${
+                        message.sender_id === userId
+                            ? 'border border-blue-400 bg-blue-500 text-white'
+                            : 'border border-blue-900 bg-gray-900 text-blue-500'
+                    }`}>
+                        {formatMessage(message.content, message.sender_id === userId)}
+                        {message.timestamp && ( 
+                            <div className="text-xs text-right text-gray-400">{new Date(message.timestamp).toLocaleString()}</div>
+                        )}
+                    </div>
                 </div>
             ))}
         </div>
