@@ -24,13 +24,10 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
         fetchMessages();
 
         // Set up WebSocket connection
-        socketRef.current = io('http://localhost:8080'); 
+        socketRef.current = io('http://localhost:8080/messaging');
         
-        // Join a room specific to this conversation
-        socketRef.current.emit('join conversation', { userId, friendId });
-
-        // Listen for new messages
-        socketRef.current.on('new message', (message: Message) => {
+        socketRef.current.emit('join_conversation', { userId, friendId });
+        socketRef.current.on('new_message', (message: Message) => {
             setMessages(prevMessages => [...prevMessages, message]);
         });
 
@@ -90,8 +87,12 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
                             : 'border border-blue-900 bg-gray-900 text-blue-500'
                     }`}>
                         {formatMessage(message.content, message.sender_id === userId)}
-                        {message.timestamp && ( 
-                            <div className="text-xs text-right text-gray-400">{new Date(message.timestamp).toLocaleString()}</div>
+                        {message.timestamp ? (
+                            <div className="text-xs text-right text-gray-300">
+                                {new Date(message.timestamp).toLocaleString()}
+                            </div>
+                        ) : (
+                            <div className="text-xs text-right text-red-500">No timestamp</div>
                         )}
                     </div>
                 </div>

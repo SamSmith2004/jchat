@@ -8,24 +8,34 @@ export default function MessageInput({ userId, friendId }: { userId: number, fri
     const socketRef = useRef<any>(null);
 
     useEffect(() => {
-        socketRef.current = io('http://localhost:8080'); 
+        socketRef.current = io('http://localhost:8080/messaging');
+
+        socketRef.current.emit('join_conversation', { userId, friendId });
+
+        socketRef.current.on('new_message', (newMessage: any) => {
+            console.log('New message:', newMessage);
+            // DO this: update your chat state here
+        });
+
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect();
             }
         };
-    }, []);
+    }, [friendId, userId]);
 
     async function sendMessage() {
         if (!message.trim()) return; // Don't send empty messages
+
         try {
             const response = await fetch('/api/messages/send', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ senderId: userId, receiverId: friendId, content: message }),
             });
+
             if (response.ok) {
-                socketRef.current.emit('send message', { sender_id: userId, receiver_id: friendId, content: message });
+                socketRef.current.emit('send_message', { sender_id: userId, receiver_id: friendId, content: message });
                 setMessage('');
             }
         } catch (error) {
@@ -34,8 +44,7 @@ export default function MessageInput({ userId, friendId }: { userId: number, fri
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        let value = e.target.value;
-        setMessage(value);
+        setMessage(e.target.value);
     };
 
     return (

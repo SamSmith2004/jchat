@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/backend/src/config/database';
+import Redis from 'ioredis';
+
+const redis = new Redis({
+  host: '100.106.217.25',
+  port: 30036
+});
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,8 +23,18 @@ export async function GET(req: NextRequest) {
     `;
    
     const friends: any[] = await executeQuery(query, [userId]);
+
+    // Check online status for each friend
+    const friendsWithStatus = await Promise.all(friends.map(async (friend: any) => {
+      const isOnline = await redis.sismember('online_users', friend.UserID);
+      return {
+        id: friend.UserID,
+        name: friend.Username,
+        status: isOnline ? 'online' : 'offline'
+      };
+    }));
    
-    return NextResponse.json(friends);
+    return NextResponse.json(friendsWithStatus);
   }
   catch (error) {
     console.error('Error fetching friends list:', error);
