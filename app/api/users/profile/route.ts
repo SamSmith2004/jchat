@@ -14,21 +14,19 @@ export async function PUT(req: NextRequest) {
     const formData = await req.formData();
     const username = formData.get('username') as string;
     const bio = formData.get('bio') as string;
-    const avatar = formData.get('avatar') as File | string | null;
+    const avatar = formData.get('avatar') as File;
 
-    let avatarPath = null;
+    let avatarPath = session.user.avatar;
     if (avatar) {
-        if (avatar instanceof File) {
-            const bytes = await avatar.arrayBuffer();
-            const buffer = Buffer.from(bytes);
-            const filename = `${session.user.id}-${Date.now()}.${avatar.type.split('/')[1]}`;
-            avatarPath = `/uploads/${filename}`;
-            const fullPath = path.join(process.cwd(), 'public', avatarPath);
+        const bytes = await avatar.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const filename = `${session.user.id}-${Date.now()}.${avatar.type.split('/')[1]}`;
+        avatarPath = `/uploads/${filename}`;
+        const fullPath = path.join(process.cwd(), 'public', avatarPath);
 
-            await mkdir(path.dirname(fullPath), { recursive: true });
+        await mkdir(path.dirname(fullPath), { recursive: true });
 
-            await writeFile(fullPath, buffer);
-        }
+        await writeFile(fullPath, buffer);
     }
 
     try {
@@ -45,12 +43,15 @@ export async function PUT(req: NextRequest) {
             );
             await connection.commit();
 
-            if (session.user) {
+            try {
                 session.user.username = username;
                 session.user.bio = bio;
-                session.user.avatar = avatarPath;
+                session.user.avatar = updatedUser[0].avatar;
+            } catch {
+                console.error('Failed to update session');
             }
 
+            //console.log('api side data', updatedUser[0]);
             return NextResponse.json(updatedUser[0]);
         } catch (error) {
             await connection.rollback();

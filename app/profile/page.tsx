@@ -27,7 +27,10 @@ export default function Profile() {
         }
         if (session?.user?.avatar) {
             setAvatarPreview(session.user.avatar);
+        } else {
+            setAvatarPreview('/uploads/default-avatar.png');
         }
+        //console.log('Avatar preview:', avatarPreview);
     }, [session]);
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,12 +50,8 @@ export default function Profile() {
         const formData = new FormData();
         formData.append('username', username);
         formData.append('bio', bio);
-        if (avatarFile) {
-            if (avatarFile !== null) {
-                formData.append('avatar', avatarFile);
-            } else {
-                formData.append('avatar', session?.user?.avatar || 'default-avatar');
-            }
+        if (avatarFile && avatarFile !== null) {
+            formData.append('avatar', avatarFile);
         }
 
         try {
@@ -64,8 +63,14 @@ export default function Profile() {
             if (response.ok) {
                 const updatedProfile = await response.json();
                 await update({
-                    user: updatedProfile 
-                }); 
+                    ...session,
+                    user: {
+                        ...session?.user,
+                        username: updatedProfile.Username,
+                        bio: updatedProfile.bio,
+                        avatar: updatedProfile.avatar
+                    }
+                });
                 router.refresh();
                 console.log('Profile updated successfully:', updatedProfile);
             } else {

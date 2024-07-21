@@ -12,7 +12,7 @@ declare module 'next-auth' {
         name?: string | null;
         email?: string | null;
         image?: string | null;
-        avatr?: string | null;
+        avatar?: string | null;
         id?: string | null;
         bio?: string;
         [key: string]: any; 
@@ -29,5 +29,6 @@ declare module 'next-auth/jwt' {
     id: string;
     username?: string;
     bio?: string;
+    avatar?: string | null;
   }
 }

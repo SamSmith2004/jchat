@@ -11,6 +11,7 @@ import { JWT } from 'next-auth/jwt';
 interface CustomUser extends NextAuthUser {
   username?: string;
   bio?: string;
+  avatar?: string;
 }
 
 export const authConfig: NextAuthOptions = {
@@ -86,7 +87,7 @@ export const authConfig: NextAuthOptions = {
           id: profile.sub,
           name: profile.name,
           email: profile.email,
-          image: profile.picture,
+          avatar: profile.picture,
           username: profile.email.split('@')[0], // Use email prefix as username
           bio: '', 
         }
@@ -133,29 +134,28 @@ export const authConfig: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        (session.user as CustomUser).id = token.id as string;
-        (session.user as CustomUser).username = token.username as string;
-        (session.user as CustomUser).bio = token.bio as string | undefined;
-        session.user.avatar= token.image as string | null | undefined;
+          session.user.id = token.id as string;
+          session.user.username = token.username as string;
+          session.user.bio = token.bio as string | undefined;
+          session.user.avatar = token.avatar as string | null | undefined;
       }
       return session;
-    },
-    async jwt({ token, user, trigger, session }) {
-      if (trigger === 'update') {
-        return {
-           ...token,
-           ...session.user
-         };
-      }
-      if (user) {
+  },
+  async jwt({ token, user, trigger, session }) {
+    if (trigger === "update" && session?.user) {
+        // Update token with new session data
+        token.username = session.user.username;
+        token.bio = session.user.bio;
+        token.avatar = session.user.avatar;
+    }
+    if (user) {
         token.id = user.id;
         token.username = (user as CustomUser).username;
         token.bio = (user as CustomUser).bio;
-        token.image = user.image;
-        token.avatr = user.image;
-      }
-      return token;
-    },
+        token.avatar = (user as CustomUser).avatar || user.image;
+    }
+    return token;
+},
   },
   pages: {
     signIn: '/', //signin page path
