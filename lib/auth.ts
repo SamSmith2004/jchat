@@ -6,9 +6,11 @@ import { redirect } from 'next/navigation';
 import bcrypt from 'bcrypt';
 import { pool } from '@/backend/src/config/database';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { JWT } from 'next-auth/jwt';
 
 interface CustomUser extends NextAuthUser {
   username?: string;
+  bio?: string;
 }
 
 export const authConfig: NextAuthOptions = {
@@ -85,7 +87,8 @@ export const authConfig: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          username: profile.email.split('@')[0] // Use email prefix as username
+          username: profile.email.split('@')[0], // Use email prefix as username
+          bio: '', 
         }
       }
     }),
@@ -128,15 +131,30 @@ export const authConfig: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async session({ session, token }) {
+      if (token && session.user) {
+        (session.user as CustomUser).id = token.id as string;
+        (session.user as CustomUser).username = token.username as string;
+        (session.user as CustomUser).bio = token.bio as string | undefined;
+        session.user.avatar= token.image as string | null | undefined;
+      }
+      return session;
+    },
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === 'update') {
+        return {
+           ...token,
+           ...session.user
+         };
+      }
       if (user) {
-        token = { ...token, ...user };
+        token.id = user.id;
+        token.username = (user as CustomUser).username;
+        token.bio = (user as CustomUser).bio;
+        token.image = user.image;
+        token.avatr = user.image;
       }
       return token;
-    },
-    async session({ session, token }) {
-      session.user = { ...session.user, ...token } as CustomUser;
-      return session;
     },
   },
   pages: {
