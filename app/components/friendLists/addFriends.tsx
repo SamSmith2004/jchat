@@ -78,7 +78,7 @@ export default function AddFriend() {
                         onChange={(e) => setUsername(e.target.value)}
                         className='border border-gray-300 p-2 rounded-md rounded-r-none'
                     />
-                    <button type="submit" className='border border-blue-900 bg-gray-900 h-full rounded-md rounded-l-none p-2'>Add</button>
+                    <button type="submit" className='hover:font-bold border border-blue-900 bg-gray-900 h-full rounded-md rounded-l-none p-2'>Add</button>
                 </div>
             </form>
             <h2 className='font-bold text-lg'>{message && <p>{message}!</p>}</h2>

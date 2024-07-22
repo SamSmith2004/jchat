@@ -46,7 +46,7 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
                         <h2 className='text-blue-300 text-2xl pr-5'>{friend.Username}</h2>
                         {onStartMessage ? (
                             <button
-                                className='text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
+                                className='hover:font-semibold text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
                                 onClick={() => onStartMessage(friend.UserID, friend.Username)}
                             >
                                 Message

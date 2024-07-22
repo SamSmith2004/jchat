@@ -128,13 +128,13 @@ export default function Profile() {
                         <button 
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="mt-4 px-4 py-2 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+                            className="hover:font-bold mt-4 px-4 py-2 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
                         >
                             Change Avatar
                         </button>
                     </div>
                     <div className="flex flex-col items-center">
-                        <button type="submit" className="w-1/2 mt-4 px-2 py-2 bg-gray-900 border border-blue-900 text-blue-600 font-semibold rounded text-lg">Save</button>
+                        <button type="submit" className="hover:font-extrabold w-1/2 mt-4 px-2 py-2 bg-gray-900 border border-blue-900 text-blue-600 font-semibold rounded text-lg">Save</button>
                     </div>
                 </form>
             </div>

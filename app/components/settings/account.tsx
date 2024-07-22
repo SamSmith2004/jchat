@@ -156,7 +156,7 @@ export default function AccountSettings() {
                 placeholder:text-blue-400 mt-2 w-96 p-2"
                 />
                 <button 
-                className="ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+                className="hover:font-bold ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
                 type="submit"
                 >
                 Update
@@ -173,7 +173,7 @@ export default function AccountSettings() {
                 placeholder:text-blue-400 mt-2 w-96 p-2"
                 />
                 <button 
-                className="ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+                className="hover:font-bold ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
                 type="submit"
                 >
                 Update
@@ -202,7 +202,7 @@ export default function AccountSettings() {
                     />
                     <button
                         type="submit"
-                        className="mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg mb-5 w-full"
+                        className="hover:font-extrabold mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg mb-5 w-full"
                     >
                         Update
                     </button>
@@ -213,12 +213,12 @@ export default function AccountSettings() {
                 Disabling your account means you can recover it at any time after taking this action</p>
             <div className="flex gap-10">
                 <button onClick={handleDisableAccount} 
-                className="text-white bg-gray-900 rounded-md px-5 py-2 border border-red-500">
+                className="text-white hover:font-bold bg-gray-900 rounded-md px-5 py-2 border border-red-500">
                     Disable
                 </button>
                 <button 
                 onClick={handleDeleteAccount} 
-                className="text-white bg-red-500 rounded-md px-5 py-2 border border-gray-900">
+                className="text-white hover:font-bold bg-red-500 rounded-md px-5 py-2 border border-gray-900">
                     Delete
                 </button>
             </div>

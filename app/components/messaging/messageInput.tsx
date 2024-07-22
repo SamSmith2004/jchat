@@ -59,7 +59,7 @@ export default function MessageInput({ userId, friendId }: { userId: number, fri
             />
             <button
                 onClick={sendMessage}
-                className="bg-blue-500 text-white text-xl px-2 rounded-r"
+                className="hover:font-semibold bg-blue-500 text-white text-xl px-2 rounded-r"
             >
                 Send
             </button>

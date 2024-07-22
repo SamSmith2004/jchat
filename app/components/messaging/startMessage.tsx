@@ -15,7 +15,7 @@ export default function StartMessage({ friendId, friendUsername }: StartMessageP
 
     return (
         <button
-            className='text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
+            className='hover:font-semibold text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
             onClick={handleStartMessage}
         >
             Message

@@ -20,7 +20,7 @@ const SignOutButton = () => {
   };
 
   return (
-    <button className='ml-5 text-blue-500 font-semibold text-lg' onClick={handleSignOut}>Sign Out</button>
+    <button className='hover:font-bold ml-5 text-blue-500 font-semibold text-lg' onClick={handleSignOut}>Sign Out</button>
   );
 };
 

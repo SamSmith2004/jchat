@@ -13,7 +13,7 @@ const NotifsSettings: React.FC = () => {
             <div className="flex gap-2">
                 <h2 className="text-blue-500 text-xl font-bold mt-1">Notifications:</h2>
                 <button 
-                className="px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+                className="hover:font-bold px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
                 onClick={toggleNotifs}
                 >{notifEnabled ? 'Disable' : 'Enable'}</button>
             </div>
