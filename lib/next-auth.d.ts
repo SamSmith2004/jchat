@@ -5,6 +5,8 @@ declare module 'next-auth' {
   interface User {
     username?: string;
     bio?: string;
+    email?: string;
+    phone?: string | null;
   }
   interface Session {
       user: User & {
@@ -15,6 +17,7 @@ declare module 'next-auth' {
         avatar?: string | null;
         id?: string | null;
         bio?: string;
+        phone?: string | null;
         [key: string]: any; 
       };
       expires: string; 
@@ -27,8 +30,10 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
+    email?: string;
     username?: string;
     bio?: string;
     avatar?: string | null;
+    phone?: string | null;
   }
 }

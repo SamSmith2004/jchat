@@ -138,6 +138,8 @@ export const authConfig: NextAuthOptions = {
           session.user.username = token.username as string;
           session.user.bio = token.bio as string | undefined;
           session.user.avatar = token.avatar as string | null | undefined;
+          session.user.email = token.email as string | undefined;
+          session.user.phone = token.phone as string | null | undefined;
       }
       return session;
   },
@@ -147,12 +149,16 @@ export const authConfig: NextAuthOptions = {
         token.username = session.user.username;
         token.bio = session.user.bio;
         token.avatar = session.user.avatar;
+        token.email = session.user.email;
+        token.phone = session.user.phone;
     }
     if (user) {
         token.id = user.id;
         token.username = (user as CustomUser).username;
         token.bio = (user as CustomUser).bio;
         token.avatar = (user as CustomUser).avatar || user.image;
+        token.email = user.email;
+        token.phone = (user as CustomUser).phone;
     }
     return token;
 },
