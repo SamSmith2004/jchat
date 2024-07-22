@@ -78,7 +78,7 @@ export default function Message() {
         <main className="flex flex-col">
             <Navbar />
             <div className="flex justify-between items-start">
-                <div className='flex space-y-5 flex-col border-r border-blue-900 pt-5 pr-20 pl-10 text-blue-500 h-screen'>
+                <div className='flex space-y-5 flex-col border-r border-blue-900 pt-5 pr-8 pl-10 text-blue-500 h-screen'>
                     <h1 className='text-blue-500 font-bold text-2xl'>Direct Messages</h1>
                     {noConversations ? (
                         <div>

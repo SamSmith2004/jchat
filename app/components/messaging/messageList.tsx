@@ -13,6 +13,7 @@ interface Message {
 export default function MessageList({ userId, friendId }: { userId: number, friendId: number }) {
     const [messages, setMessages] = useState<Message[]>([]);
     const socketRef = useRef<any>(null);
+    const chatboxRef = useRef<HTMLDivElement | null>(null);
 
     const fetchMessages = useCallback(async () => {
         const response = await fetch(`/api/messages/list?userId=${userId}&friendId=${friendId}`);
@@ -38,6 +39,12 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
             }
         };
     }, [userId, friendId, fetchMessages]);
+
+    useEffect(() => {
+        if (chatboxRef.current) {
+            chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     // Format message content to wrap at linelength characters and move from right to left
     const formatMessage = (content: string, isSender: boolean) => {
@@ -78,7 +85,7 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
     };
 
     return (
-        <div className="min-h-64 h-auto max-h-[84vh] overflow-y-auto mb-4 p-2 border border-blue-900 rounded">
+        <div ref={chatboxRef} className="min-h-64 h-auto max-h-[78vh] overflow-y-auto mb-4 p-2 border border-blue-900 rounded">
             {messages.map((message) => (
                 <div key={message.id} className={`mb-2 flex ${message.sender_id === userId ? 'justify-end' : 'justify-start'}`}>
                     <div className={`p-2 rounded max-w-[75%] ${
