@@ -7,5 +7,6 @@ export interface CustomSession extends Session {
     username: string;
     avatar?: string | null;
     bio?: string | null;
+    phone?: number | string | null;
   } & Session['user']
 }

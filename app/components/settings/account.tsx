@@ -10,6 +10,7 @@ export default function AccountSettings() {
     const [phone, setPhone] = useState<number | string | null>(null);
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -108,6 +109,11 @@ export default function AccountSettings() {
             return;
         }
 
+        if (newPassword !== confirmPassword) {
+            setError('New passwords do not match');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('oldPassword', oldPassword);
         formData.append('newPassword', newPassword);
@@ -197,6 +203,15 @@ export default function AccountSettings() {
                         placeholder="New Password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
+                        className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400 
+                        placeholder:text-blue-400 mt-2 w-96 p-2"
+                    />
+                    <label className="text-blue-500 text-xl font-bold mr-2 mt-2">Confirm Password:</label>
+                    <input
+                        type="password"
+                        placeholder="Confirm password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400 
                         placeholder:text-blue-400 mt-2 w-96 p-2"
                     />

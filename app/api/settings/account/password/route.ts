@@ -4,6 +4,25 @@ import { getServerSession } from 'next-auth/next'
 import { authConfig } from '@/lib/auth'
 import bcrypt from 'bcrypt';
 
+function passwordStrengthTest(password: string): string | null {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      return 'Password must contain at least one special character (!@#$%^&*)';
+    }
+    return null;
+}
+
 export async function PUT(req: NextRequest) {
     const session = await getServerSession(authConfig);
     if (!session) {
@@ -16,6 +35,11 @@ export async function PUT(req: NextRequest) {
 
     if (!oldPassword || !newPassword) {
         return NextResponse.json({ error: 'Missing password' }, { status: 400 });
+    }
+
+    const passwordError = passwordStrengthTest(newPassword);
+    if (passwordError) {
+        return NextResponse.json({ error: passwordError }, { status: 400 });
     }
 
     let connection;

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authConfig } from '@/lib/auth';
 import { pool } from '@/backend/src/config/database';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, unlink } from 'fs/promises';
 import path from 'path';
 
 export async function PUT(req: NextRequest) {
@@ -33,6 +33,7 @@ export async function PUT(req: NextRequest) {
         const connection = await pool.getConnection();
         try {
             await connection.beginTransaction();
+
             await connection.query(
                 'UPDATE users SET username = ?, bio = ?, avatar = ? WHERE UserID = ?',
                 [username, bio, avatarPath, session.user.id]
@@ -46,7 +47,13 @@ export async function PUT(req: NextRequest) {
             try {
                 session.user.username = username;
                 session.user.bio = bio;
-                session.user.avatar = updatedUser[0].avatar;
+                if (avatar) {
+                    const oldAvatar = session.user.avatar;
+                    session.user.avatar = updatedUser[0].avatar;
+                    if (oldAvatar && oldAvatar !== '/uploads/default-avatar.png') {
+                        await unlink(path.join(process.cwd(), 'public', oldAvatar));
+                    }
+                }
             } catch {
                 console.error('Failed to update session');
             }

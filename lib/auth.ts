@@ -12,6 +12,7 @@ interface CustomUser extends NextAuthUser {
   username?: string;
   bio?: string;
   avatar?: string;
+  phone?: string | null;
 }
 
 export const authConfig: NextAuthOptions = {
@@ -90,6 +91,7 @@ export const authConfig: NextAuthOptions = {
           avatar: profile.picture,
           username: profile.email.split('@')[0], // Use email prefix as username
           bio: '', 
+          phone: null
         }
       }
     }),
@@ -118,11 +120,18 @@ export const authConfig: NextAuthOptions = {
             customUser.id = result.insertId.toString();
           } else {
             // User exists, update their information
+            const existingUser = existingUsers[0];
+            customUser.id = existingUser.UserID.toString();
+            customUser.username = existingUser.Username;
+            customUser.bio = existingUser.Bio;
+            customUser.avatar = existingUser.Avatar;
+            customUser.phone = existingUser.Phone;
+
+            // Update the user's information if needed
             await pool.query(
-              'UPDATE users SET username = ? WHERE email = ?',
-              [customUser.username, customUser.email]
+              'UPDATE users SET username = ?, avatar = ? WHERE email = ?',
+              [customUser.username, customUser.avatar, customUser.email]
             );
-            customUser.id = existingUsers[0].UserID.toString();
           }
           return true;
         } catch (error) {
@@ -142,26 +151,38 @@ export const authConfig: NextAuthOptions = {
           session.user.phone = token.phone as string | null | undefined;
       }
       return session;
-  },
-  async jwt({ token, user, trigger, session }) {
-    if (trigger === "update" && session?.user) {
-        // Update token with new session data
-        token.username = session.user.username;
-        token.bio = session.user.bio;
-        token.avatar = session.user.avatar;
-        token.email = session.user.email;
-        token.phone = session.user.phone;
-    }
-    if (user) {
-        token.id = user.id;
-        token.username = (user as CustomUser).username;
-        token.bio = (user as CustomUser).bio;
-        token.avatar = (user as CustomUser).avatar || user.image;
-        token.email = user.email;
-        token.phone = (user as CustomUser).phone;
-    }
-    return token;
-},
+    },
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session?.user) {
+          // Update token with new session data
+          token.username = session.user.username;
+          token.bio = session.user.bio;
+          token.avatar = session.user.avatar;
+          token.email = session.user.email;
+          token.phone = session.user.phone;
+      }
+      if (user) {
+          // When user signs in or token is created
+          try {
+              const [users] = await pool.query<RowDataPacket[]>(
+                  'SELECT * FROM users WHERE email = ?',
+                  [user.email]
+              );
+              if (users.length > 0) {
+                  const dbUser = users[0];
+                  token.id = dbUser.UserID.toString();
+                  token.username = dbUser.Username;
+                  token.bio = dbUser.bio;
+                  token.avatar = dbUser.avatar;
+                  token.email = dbUser.Email;
+                  token.phone = dbUser.phone;
+              }
+          } catch (error) {
+              console.error('Error fetching user data in JWT callback:', error);
+          }
+      }
+      return token;
+    },
   },
   pages: {
     signIn: '/', //signin page path

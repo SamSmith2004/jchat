@@ -15,9 +15,13 @@ interface signInResponse {
 export function CredentialsForm(props : CredentialsFormProps) {
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+
         const data = new FormData(e.currentTarget);
         const signInResponse = await signIn('credentials', {
             email: data.get('email'),
@@ -26,10 +30,13 @@ export function CredentialsForm(props : CredentialsFormProps) {
         });
 
         if (signInResponse && !signInResponse.error) {
-            router.push('/home');
+            setTimeout(() => {
+                router.push('/home');
+            }, 1000);
         } else {
             console.error('Error:', signInResponse?.error);
             setError("Your Email or Password is incorrect.");
+            setIsLoading(false);
         }
 
     };
@@ -60,7 +67,9 @@ export function CredentialsForm(props : CredentialsFormProps) {
                 required
                 className="mt-2 rounded-sm p-3 text-lg w-full max-w-xs text-black" />
             </div>
-            <button type="submit" className="mt-4 px-6 py-3 bg-blue-500 text-white font-semibold rounded text-lg">Sign In</button>
+            <button type="submit" className="mt-4 px-6 py-3 bg-blue-500 text-white font-semibold rounded text-lg">
+                {isLoading ? 'Signing In...' : 'Sign In'}
+            </button>
         </form>
     )
 };
