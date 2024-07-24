@@ -13,19 +13,24 @@ interface CustomSocket extends Socket {
 }
 const app = express();
 const server = http.createServer(app);
-
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:3000",
         methods: ["GET", "POST"]
     } // allow only localhost:3000 to connect and only allow GET and POST requests
 });
+
 const redis = new Redis({
         host: '100.106.217.25',
         port: 30036
     });
 
-redis.on('connect', () => console.log('Connected to Redis'));
+redis.on('connect', async () => {
+    console.log('Connected to Redis');
+    // Clear online users on server start
+    await redis.del('online_users');
+});
+    
 redis.on('error', (err) => console.error('Redis connection error:', err));
 
 app.use(cors());
@@ -33,26 +38,29 @@ app.use(express.json());
 
 // User status namespace
 const userStatus = io.of('/user-status');
-userStatus.on('connection', (socket : CustomSocket) => { // socket is the connection object
+userStatus.on('connection', (socket: CustomSocket) => {
     const userId = socket.user?.id;
-    // Set user as online
-    redis.sadd('online_users', userId);
-    userStatus.emit('user_online', userId);
+    if (userId) {
+        redis.set(`user:${userId}:status`, 'online', 'EX', 60); // Set user status to online for 60 seconds
+        userStatus.emit('user_online', userId); // Notify all clients that user is online   
+    }
+    
     socket.on('disconnect', async () => {
-        // Set user as offline
-        await redis.srem('online_users', userId);
-        userStatus.emit('user_offline', userId);
+        if (userId) {
+            await redis.del(`user:${userId}:status`);
+            userStatus.emit('user_offline', userId);
+        }
     });
 });
 
 app.post('/api/user-status', async (req, res) => {
     const { userId, status } = req.body;
     if (status === 'online') {
-      await redis.sadd('online_users', userId);
-      userStatus.emit('user_online', userId);
+        await redis.set(`user:${userId}:status`, 'online', 'EX', 60);
+        userStatus.emit('user_online', userId);
     } else if (status === 'offline') {
-      await redis.srem('online_users', userId);
-      userStatus.emit('user_offline', userId);
+        await redis.del(`user:${userId}:status`);
+        userStatus.emit('user_offline', userId);
     }
     res.status(200).json({ message: 'Status updated successfully' });
 });

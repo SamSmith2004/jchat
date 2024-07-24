@@ -17,21 +17,6 @@ export async function middleware(req: NextRequest) {
   if (!isAuthenticated) {
     return NextResponse.redirect(new URL('/', req.url))
   }
-
-  // If authenticated, update user status to online
-  if (isAuthenticated && token.sub) { // 'sub' is usually the user ID in JWT
-    try {
-      await fetch('http://localhost:8080/api/user-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: token.sub, status: 'online' }),
-      })
-    } catch (error) {
-      console.error('Failed to update user status:', error)
-    }
-  }
-
-  return NextResponse.next()
 }
 
 export const config = {

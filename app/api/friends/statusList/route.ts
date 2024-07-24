@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     // Check online status for each friend
     const friendsWithStatus = await Promise.all(friends.map(async (friend: any) => {
-      const isOnline = await redis.sismember('online_users', friend.UserID);
+      const isOnline = await redis.exists(`user:${friend.UserID}:status`);
       return {
         id: friend.UserID,
         name: friend.Username,
