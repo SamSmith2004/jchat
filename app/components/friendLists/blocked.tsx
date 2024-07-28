@@ -31,7 +31,6 @@ export default function Blocked() {
                 }
                 const data = await response.json();
                 setBlockedUsers(data);
-                console.log(data);
             } catch (error) {
                 console.error('Error fetching blocked:', error);
                 setError('Failed to load blocked users. Please try again later.');
