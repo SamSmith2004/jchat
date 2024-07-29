@@ -45,6 +45,32 @@ export default function Blocked() {
     if (isLoading) return <div>Loading blocked users...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
 
+    async function unblockUser(blockedId: string) {
+        if (!session?.user?.id) return;
+        try {
+            setIsLoading(true);
+            setError(null);
+            const response = await fetch('/api/friends/blocked', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ blockedId: blockedId }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to unblock user');
+            }
+             // Remove the unblocked user from the list
+            setBlockedUsers(prevUsers => prevUsers.filter(user => user.UserID !== blockedId));
+        } catch (error) {
+            console.error('Error unblocking user:', error);
+            setError(error instanceof Error ? error.message : 'An error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <>
         <h1 className='text-blue-500 text-3xl'>Blocked Users:</h1>
@@ -53,6 +79,7 @@ export default function Blocked() {
                 <div key={blockedUser.UserID} className="flex space-x-5">
                     <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
                     <h2 className='text-blue-300 text-2xl'>{blockedUser.Username}</h2>
+                    <button onClick={() => unblockUser(blockedUser.UserID)} className="bg-gray-900 border border-blue-900 rounded-md p-1 text-blue-500 hover:font-semibold text-lg">Unblock</button>
                 </div>
             ))
         ) : (

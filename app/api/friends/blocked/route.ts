@@ -68,3 +68,47 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Failed to block user' }, { status: 500 });
     }
 }
+
+export async function DELETE(req: Request) {
+    const session = await getServerSession(authConfig) as CustomSession | null;
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const userId = session.user.id;
+    const { blockedId } = await req.json();
+
+    if (!blockedId) {
+        return NextResponse.json({ error: 'Blocked user ID is required' }, { status: 400 });
+    }
+
+    try {
+        // Check if both users exist
+        const [users] = await pool.query(
+            'SELECT UserID FROM users WHERE UserID IN (?, ?)',
+            [userId, blockedId]
+        ) as any[];
+        
+        if (users.length !== 2) {
+            return NextResponse.json({ error: 'One or both users do not exist' }, { status: 400 });
+        }
+
+        //Check if user is blocked
+        const [existingBlock] = await pool.query(
+            'SELECT id FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?',
+            [userId, blockedId]
+        ) as any[];
+
+        if (existingBlock.length === 0) {
+            return NextResponse.json({ error: 'User is not blocked' }, { status: 400 });
+        }
+
+        await pool.query(
+            'DELETE FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?',
+            [userId, blockedId]
+        );
+
+        return NextResponse.json({ message: 'User unblocked successfully' });
+    } catch (error) {
+        console.error('Error unblocking user:', error);
+        return NextResponse.json({ error: 'Failed to unblock user' }, { status: 500 });
+    }
+}

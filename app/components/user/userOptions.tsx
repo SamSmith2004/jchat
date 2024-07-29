@@ -67,7 +67,7 @@ export default function UserOptions({ UserID, Username, avatar, onUserBlocked }:
             {showDetails && (
                 <div className="absolute right-0 mt-2 w-96 bg-gray-900 border border-blue-900 rounded-md z-10">
                     <div className="py-1">
-                        <div className="px-4 py-2 text-lg text-blue-500 hover:bg-blue-400 hover:text-white hover:font-semibold flex items-center">
+                        <div className="px-4 py-2 text-lg text-blue-500 font-semibold flex items-center">
                             <Image src={avatar} alt={Username} width={32} height={32} className="rounded-full mr-2" />
                             <span>{Username}</span>
                         </div>

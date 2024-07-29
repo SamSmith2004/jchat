@@ -24,6 +24,17 @@ export async function POST(req: NextRequest) {
         if (userCountResult[0].count !== 2) {
             return NextResponse.json({ error: 'Invalid sender or receiver' }, { status: 400 });
         }
+
+        // Check if user is blocked
+        const [blockedResult] = await connection.execute<UserCountResult[]>(
+            'SELECT COUNT(*) as count FROM blocked_users WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)',
+            [senderId, receiverId, receiverId, senderId]
+        );
+
+        if (blockedResult[0].count > 0) {
+            return NextResponse.json({ error: 'You cannot send messages to this user' }, { status: 403 });
+        }
+
         // If both users exist, proceed with inserting the message
         const [result] = await connection.execute(
             'INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)',
