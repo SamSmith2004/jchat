@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 interface BlockedUser {
   UserID: string;
   Username: string;
+  avatar: string;
 }
 
 export default function Blocked() {
@@ -77,7 +78,12 @@ export default function Blocked() {
         {blockedUsers.length > 0 ? (
             blockedUsers.map(blockedUser => (
                 <div key={blockedUser.UserID} className="flex space-x-5">
-                    <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
+                    <Image src={blockedUser.avatar || "/circle.png"} 
+                    alt={blockedUser.Username} 
+                    height={40} 
+                    width={50}
+                    className='rounded-full border-2 border-blue-900 max-h-12'
+                    />
                     <h2 className='text-blue-300 text-2xl'>{blockedUser.Username}</h2>
                     <button onClick={() => unblockUser(blockedUser.UserID)} className="bg-gray-900 border border-blue-900 rounded-md p-1 text-blue-500 hover:font-semibold text-lg">Unblock</button>
                 </div>

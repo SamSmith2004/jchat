@@ -47,7 +47,13 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
             {friendsList.length > 0 ? (
                 friendsList.map((friend) => (
                     <div key={friend.UserID} className="flex space-x-5 items-center">
-                        <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
+                        <Image 
+                        src={friend.avatar || "/circle.png"} 
+                        alt="placeholder" 
+                        height={40} 
+                        width={50}
+                        className='rounded-full border-2 border-blue-900 max-h-12'
+                        />
                         <h2 className='text-blue-300 text-2xl pr-5'>{friend.Username}</h2>
                         {onStartMessage ? (
                             <button
@@ -65,7 +71,8 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
                         <UserOptions
                             UserID={friend.UserID}
                             Username={friend.Username}
-                            avatar="/circle.png"
+                            avatar={friend.avatar || '/circle.png'}
+                            bio={friend.bio || 'No bio available'} 
                             onUserBlocked={() => handleUserBlocked(friend.UserID)}
                         />
                     </div>

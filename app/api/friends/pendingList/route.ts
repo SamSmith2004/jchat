@@ -4,6 +4,7 @@ import { executeQuery } from '@/backend/src/config/database';
 interface PendingFriend {
     id: number;
     Username: string;
+    avatar: string;
 }
 
 export async function GET(req: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
     }
 
     const query = `
-      SELECT fr.id, u.Username
+      SELECT fr.id, u.Username, u.avatar
       FROM friend_requests fr
       JOIN users u ON fr.sender_id = u.UserID
       WHERE fr.receiver_id = ? AND fr.status = 'pending';

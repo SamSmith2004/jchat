@@ -12,7 +12,7 @@ export async function GET(req : Request) {
     
     try {
         const [blockedUsers] = await pool.query(
-            `SELECT u.UserID, u.Username 
+            `SELECT u.UserID, u.Username, u.avatar 
              FROM blocked_users b 
              JOIN users u ON b.blocked_id = u.UserID 
              WHERE b.blocker_id = ?`,

@@ -63,17 +63,26 @@ export default function OnlineFriends() {
         {friends.length > 0 ? (
             friends.map(friend => (
                 <div key={friend.id} className="flex space-x-5">
-                    <div className="relative">
-                        <Image src="/circle.png" alt="placeholderpfp" height={50} width={60} className='z-10'/>
-                        {friend.status === 'online' ? 
-                        (<Image src="/greencircle.png" alt="placeholderstatus" height={20} width={20} className='absolute bottom-0.5 right-1.5 z-20'/>) 
-                        : 
-                        (<Image src="/greycircle.png" alt="placeholderstatus" height={20} width={20} className='absolute bottom-0.5 right-1.5 z-20'/>)}
-                    </div>
-                    <h2 className={`text-3xl text-blue-500`}>
-                        {friend.name}
-                    </h2>
+                <div className="relative">
+                    <Image 
+                        src={friend.avatar || "/circle.png"} 
+                        alt={`${friend.name}'s avatar`} 
+                        height={50} 
+                        width={60} 
+                        className='z-10 rounded-full  border-2 border-blue-900 max-h-10 max-w-10'
+                        onError={(e) => {
+                            e.currentTarget.src = "/circle.png";
+                        }}
+                    />
+                    {friend.status === 'online' ?
+                    (<Image src="/greencircle.png" alt="online status" height={20} width={20} className='absolute bottom-0 right-0 z-20'/>)
+                    :
+                    (<Image src="/greycircle.png" alt="offline status" height={20} width={20} className='absolute bottom-0 right-0 z-20'/>)}
                 </div>
+                <h2 className={`text-3xl text-blue-500`}>
+                    {friend.name}
+                </h2>
+            </div>
             ))) : (
                 <p className="text-white">No friends</p>
             )}

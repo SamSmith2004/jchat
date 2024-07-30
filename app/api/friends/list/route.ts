@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     }
 
     const query = `
-      SELECT u.UserID, u.Username
+      SELECT u.UserID, u.Username, u.avatar, u.bio
       FROM friends AS f
       JOIN users AS u ON f.friend_id = u.UserID
       WHERE f.user_id = ?

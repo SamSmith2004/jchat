@@ -9,18 +9,56 @@ interface UserOptionsProps {
     UserID: number | string;
     Username: string;
     avatar: string;
-    onUserBlocked?: () => void;  // Add this prop
+    bio: string;
+    onUserBlocked?: () => void; 
 }
 
-export default function UserOptions({ UserID, Username, avatar, onUserBlocked }: UserOptionsProps) {
-    const router = useRouter();
+interface UserDetailsDisplayProps {
+    UserID: number | string;
+    Username: string;
+    avatar: string;
+    bio: string;
+    onClose: () => void;
+}
+
+const UserDetailsDisplay: React.FC<UserDetailsDisplayProps> = ({ Username, avatar, bio, onClose }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-gray-900 p-6 rounded-lg max-w-2xl w-full relative">
+            <button 
+                onClick={onClose}
+                className="absolute top-2 right-2 px-2.5 py- text-red-500 rounded-lg hover:font-extrabold hover:text-red-700 text-xl font-semibold"
+            >
+                x
+            </button>
+            <div className='flex space-y-5 flex-row'>
+                <Image 
+                    src={avatar || "/circle.png"} 
+                    alt={Username} 
+                    width={100} 
+                    height={100} 
+                    className="rounded-full border-2 border-blue-900 mb-4 max-h-24" 
+                    onError={(e) => {
+                        e.currentTarget.src = "/circle.png";
+                    }}
+                />
+                <h2 className="ml-5 mt-10 text-2xl font-semibold text-blue-400">{Username}</h2>
+            </div>
+            <h3 className='text-blue-500 text-xl font-bold mb-2 mt-2'>About Me:</h3>
+            <div className='border border-blue-900 bg-gray-900 text-blue-300 p-2 rounded mb-4 w-5/6 h-fit'>{bio || 'No bio available'}</div>
+        </div>
+    </div>
+);
+
+export default function UserOptions({ UserID, Username, avatar, bio, onUserBlocked }: UserOptionsProps) {
     const [showDetails, setShowDetails] = useState(false);
+    const [showUserDetails, setShowUserDetails] = useState(false);
     const { data: session } = useSession() as { data: CustomSession | null };
     const [isBlocking, setIsBlocking] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleDisplayUser = () => {
-        router.push(`/user/${UserID}`);
+        setShowUserDetails(true);
+        setShowDetails(!showDetails);
     }
 
     const toggleDetails = () => {
@@ -68,7 +106,7 @@ export default function UserOptions({ UserID, Username, avatar, onUserBlocked }:
                 <div className="absolute right-0 mt-2 w-96 bg-gray-900 border border-blue-900 rounded-md z-10">
                     <div className="py-1">
                         <div className="px-4 py-2 text-lg text-blue-500 font-semibold flex items-center">
-                            <Image src={avatar} alt={Username} width={32} height={32} className="rounded-full mr-2" />
+                            <Image src={avatar} alt={Username} width={32} height={32} className="rounded-full mr-2 max-h-8" />
                             <span>{Username}</span>
                         </div>
                         <button
@@ -93,6 +131,15 @@ export default function UserOptions({ UserID, Username, avatar, onUserBlocked }:
                         {error && <p className="px-4 py-2 text-sm text-red-500">{error}</p>}
                     </div>
                 </div>
+            )}
+            {showUserDetails && (
+                <UserDetailsDisplay 
+                    UserID={UserID}
+                    Username={Username}
+                    avatar={avatar}
+                    bio={bio}
+                    onClose={() => setShowUserDetails(false)}
+                />
             )}
         </div>
     );

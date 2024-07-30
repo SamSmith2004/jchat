@@ -7,6 +7,7 @@ import { CustomSession } from '@/app/types/customSession';
 interface PendingFriend {
     id: number;
     Username: string;
+    avatar: string;
 }
 
 export default function PendingFriends() {
@@ -90,7 +91,12 @@ export default function PendingFriends() {
                 {pendingFriends.length > 0 ? (
                     pendingFriends.map((friend) => (
                         <div key={friend.id} className="flex space-x-5">
-                            <Image src="/circle.png" alt="placeholder" height={40} width={50}/>
+                            <Image src={friend.avatar || "/circle.png"} 
+                            alt="placeholder" 
+                            height={40} 
+                            width={50}
+                            className='rounded-full border-2 border-blue-900 max-h-12'
+                            />
                             <h2 className='text-blue-500 text-2xl pr-10'>{friend.Username}</h2>
                             <button
                                 className="bg-blue-500 text-white px-3 py-1 rounded-md hover:font-extrabold"
