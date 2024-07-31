@@ -13,6 +13,8 @@ interface AllFriendsProps {
 export default function AllFriends({ onStartMessage }: AllFriendsProps) {
     const { data: session } = useSession() as { data: CustomSession | null };
     const [friendsList, setFriendsList] = useState<CustomSession[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -22,6 +24,8 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
     }, [session]);
 
     async function fetchFriends(userID: number) {
+        setIsLoading(true);
+        setError(null);
         try {
             const response = await fetch(`/api/friends/list?userId=${userID}`, {
                 method: 'GET',
@@ -34,12 +38,23 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
             setFriendsList(data);
         } catch (error) {
             console.error('Error fetching friends:', error);
+            setError(error instanceof Error ? error.message : 'An error occurred while fetching friends');
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const handleUserBlocked = (blockedUserId: number | string) => {
         setFriendsList(prevList => prevList.filter(friend => friend.UserID !== blockedUserId));
     };
+
+    if (isLoading) {
+        return <div className="text-white">Loading friends...</div>;
+    }
+
+    if (error) {
+        return <div className="text-red-500">Error: {error}</div>;
+    }
 
     return (
         <>

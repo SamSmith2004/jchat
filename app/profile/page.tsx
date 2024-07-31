@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Profile() {
-    const { data: session} = useSession() as { data: CustomSession | null};
+    const { data: session, status } = useSession() as { data: CustomSession | null, status: "loading" | "authenticated" | "unauthenticated" };
     const { update } = useSession();
     const router = useRouter();
     const [username, setUsername] = useState('');
@@ -15,6 +15,8 @@ export default function Profile() {
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (session?.user?.username) {
@@ -47,6 +49,8 @@ export default function Profile() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
         const formData = new FormData();
         formData.append('username', username);
         formData.append('bio', bio);
@@ -74,14 +78,29 @@ export default function Profile() {
                 router.refresh();
                 console.log('Profile updated successfully:', updatedProfile);
             } else {
-                console.error('Failed to update profile');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update profile');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
+            setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const avatarSrc = avatarPreview || '/uploads/default-avatar.png';
+
+    if (status === "loading") {
+        return <div className="flex justify-center items-center h-screen">
+            <p className="text-blue-500 text-2xl">Loading profile...</p>
+        </div>;
+    }
+
+    if (status === "unauthenticated") {
+        router.push('/login');
+        return null;
+    }
 
     return (
         <main className="flex flex-col">
@@ -97,6 +116,7 @@ export default function Profile() {
                     />
                 </div>
                 <h1 className="text-5xl text-blue-500 mt-5">Welcome back {username || 'unknown'}!</h1>
+                {error && <p className="text-red-500 mt-4">{error}</p>}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-5">
                     <div className="flex flex-col items-center">
                         <label className="text-2xl text-blue-500">Username</label>
@@ -134,7 +154,13 @@ export default function Profile() {
                         </button>
                     </div>
                     <div className="flex flex-col items-center">
-                        <button type="submit" className="hover:font-extrabold w-1/2 mt-4 px-2 py-2 bg-gray-900 border border-blue-900 text-blue-600 font-semibold rounded text-lg">Save</button>
+                    <button 
+                            type="submit" 
+                            className="hover:font-extrabold w-1/2 mt-4 px-2 py-2 bg-gray-900 border border-blue-900 text-blue-600 font-semibold rounded text-lg disabled:opacity-50"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Saving...' : 'Save'}
+                        </button>
                     </div>
                 </form>
             </div>

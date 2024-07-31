@@ -8,12 +8,13 @@ import { CustomSession } from '@/app/types/customSession';
 export default function OnlineFriends() {
     const [friends, setFriends] = useState<CustomSession[]>([]);;
     const { data: session } = useSession() as { data: CustomSession };
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (session?.user?.id) {
             const userId = Number(session.user.id);
             fetchFriends(userId);
-
             try {
                 const socket = io('http://localhost:8080/user-status');
 
@@ -38,11 +39,14 @@ export default function OnlineFriends() {
                 };
             } catch (error) {
                 console.error('Error connecting to socket:', error);
+                setError('Failed to connect to server. Please try again later.');
             }
         }
     }, [session]);
 
     async function fetchFriends(userID: number) {
+        setIsLoading(true);
+        setError(null);
         try {
             const response = await fetch(`/api/friends/statusList?userId=${userID}`, {
                 method: 'GET',
@@ -55,7 +59,18 @@ export default function OnlineFriends() {
             setFriends(data);
         } catch (error) {
             console.error('Error fetching friends:', error);
+            setError('Failed to get your friends');
+        } finally {
+            setIsLoading(false);
         }
+    }
+
+    if (isLoading) {
+        return <div className="text-white">Loading friends...</div>;
+    }
+
+    if (error) {
+        return <div className="text-red-500">Error: {error}</div>;
     }
 
     return (

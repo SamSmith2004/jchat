@@ -13,6 +13,8 @@ interface PendingFriend {
 export default function PendingFriends() {
     const { data: session } = useSession() as { data: CustomSession | null };
     const [pendingFriends, setPendingFriends] = useState<PendingFriend[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     async function acceptFriendRequest(requestId: number) {
         try {
@@ -35,11 +37,12 @@ export default function PendingFriends() {
             setPendingFriends(prevFriends => prevFriends.filter(friend => friend.id !== requestId));
         } catch (error) {
             console.error('Error accepting friend request:', error);
+            setError('Failed to accept friend request');
         }
     }
 
     async function rejectFriendRequest(requestId: number) {
-        console.log('Rejecting request with ID:', requestId);
+        //console.log('Rejecting request with ID:', requestId);
         try {
             const response = await fetch('/api/friends/reject', {
                 method: 'POST',
@@ -60,11 +63,14 @@ export default function PendingFriends() {
             setPendingFriends(prevFriends => prevFriends.filter(friend => friend.id !== requestId));
         } catch (error) {
             console.error('Error rejecting friend request:', error);
+            setError('Failed to reject friend request');
         }
     }
    
     useEffect(() => {
         const fetchFriends = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
                 if (!session?.user?.id) return;
                 const response = await fetch(`/api/friends/pendingList?userId=${session.user.id}`);
@@ -74,7 +80,10 @@ export default function PendingFriends() {
                 const data: PendingFriend[] = await response.json();
                 setPendingFriends(data);
             } catch (error) {
+                setError('Failed to fetch pending friends');
                 console.error('Error fetching pending friends:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
        
@@ -82,6 +91,14 @@ export default function PendingFriends() {
             fetchFriends();
         }
     }, [session]);
+
+    if (isLoading) {
+        return <div className="text-white">Loading pending friends...</div>;
+    }
+
+    if (error) {
+        return <div className="text-red-500">Error: {error}</div>;
+    }
    
     return (
         <>

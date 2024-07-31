@@ -12,13 +12,24 @@ interface Message {
 
 export default function MessageList({ userId, friendId }: { userId: number, friendId: number }) {
     const [messages, setMessages] = useState<Message[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const socketRef = useRef<any>(null);
     const chatboxRef = useRef<HTMLDivElement | null>(null);
 
     const fetchMessages = useCallback(async () => {
-        const response = await fetch(`/api/messages/list?userId=${userId}&friendId=${friendId}`);
-        const data = await response.json();
-        setMessages(data);
+        try {
+            setIsLoading(true);
+            setError(null);
+            const response = await fetch(`/api/messages/list?userId=${userId}&friendId=${friendId}`);
+            if (!response.ok) throw new Error('Failed to fetch messages');
+            const data = await response.json();
+            setMessages(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setIsLoading(false);
+        }
     }, [userId, friendId]);
 
     useEffect(() => {
@@ -83,6 +94,18 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
             </div>
         ));
     };
+
+    if (isLoading) {
+        return <div className="min-h-64 h-auto max-h-[78vh] flex items-center justify-center">
+            <p>Loading messages...</p>
+        </div>;
+    }
+
+    if (error) {
+        return <div className="min-h-64 h-auto max-h-[78vh] flex items-center justify-center">
+            <p className="text-red-500">Error: {error}</p>
+        </div>;
+    }
 
     return (
         <div ref={chatboxRef} className="min-h-64 h-auto max-h-[78vh] overflow-y-auto mb-4 p-2 border border-blue-900 rounded">
