@@ -126,6 +126,44 @@ export default function UserOptions({ UserID, Username, avatar, bio, onUserBlock
         }
     }
 
+    const removeFriend = async () => {
+        if (!session?.user.id) return;
+        setIsBlocking(true);
+        setError(null);
+
+        if (!confirm('Are you sure you want to remove this friend?')) {
+            setIsBlocking(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/friends/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ friendId: UserID }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to remove friend');
+            }
+
+            // If friend removed successfully
+            onToggle(); 
+            if (onUserBlocked) {
+                onUserBlocked(); // same callback as for blocking
+            }
+
+        } catch (error) {
+            console.error('Error removing friend:', error);
+            setError(error instanceof Error ? error.message : 'An error occurred');
+        } finally {
+            setIsBlocking(false);
+        }
+    }
+
     return (
         <div className="relative">
             <button onClick={toggleDetails} className="text-blue-500 hover:text-blue-700 text-2xl">
@@ -150,10 +188,11 @@ export default function UserOptions({ UserID, Username, avatar, bio, onUserBlock
                             View Profile
                         </button>
                         <button
-                            onClick={() => {/*TODO: Implement friend removal */}}
-                            className="block px-4 py-2 text-md text-blue-500 hover:bg-blue-400 hover:text-white hover:font-semibold w-full text-left"
+                        onClick={removeFriend}
+                        disabled={isBlocking}
+                        className="block px-4 py-2 text-md text-blue-500 hover:bg-blue-400 hover:text-white hover:font-semibold w-full text-left"
                         >
-                            Remove Friend
+                        {isBlocking ? 'Removing...' : 'Remove Friend'}
                         </button>
                         <button
                             onClick={blockUser}
