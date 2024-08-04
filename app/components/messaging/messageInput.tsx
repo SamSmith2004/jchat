@@ -2,8 +2,11 @@
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import { useSession } from 'next-auth/react';
+import { CustomSession } from '@/app/types/customSession';
 
 export default function MessageInput({ userId, friendId }: { userId: number, friendId: number }) {
+    const { data: session } = useSession() as { data: CustomSession | null }
     const [message, setMessage] = useState('');
     const socketRef = useRef<any>(null);
     const [error, setError] = useState<string | null>(null);
@@ -63,7 +66,13 @@ export default function MessageInput({ userId, friendId }: { userId: number, fri
                 </div>
             )}
             <div className="flex">
-                <Image src="/circle.png" width={60} height={40} alt="Upload" />
+                <Image 
+                src={session?.user.avatar || "/circle.png"} 
+                width={60} 
+                height={40} 
+                alt="Upload"
+                className='rounded-full border-2 border-blue-900 mr-1' 
+                />
                 <textarea
                     value={message}
                     onChange={handleChange}

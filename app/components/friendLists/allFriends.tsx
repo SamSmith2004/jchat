@@ -11,6 +11,7 @@ interface AllFriendsProps {
 }
 
 export default function AllFriends({ onStartMessage }: AllFriendsProps) {
+    const [openUserID, setOpenUserID] = useState<number | string | null>(null);
     const { data: session } = useSession() as { data: CustomSession | null };
     const [friendsList, setFriendsList] = useState<CustomSession[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +47,11 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
 
     const handleUserBlocked = (blockedUserId: number | string) => {
         setFriendsList(prevList => prevList.filter(friend => friend.UserID !== blockedUserId));
+        setOpenUserID(null); // close user options
+    };
+
+    const handleToggleUserOptions = (userID: number | string) => {
+        setOpenUserID(prevID => prevID === userID ? null : userID);
     };
 
     if (isLoading) {
@@ -63,11 +69,11 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
                 friendsList.map((friend) => (
                     <div key={friend.UserID} className="flex space-x-5 items-center">
                         <Image 
-                        src={friend.avatar || "/circle.png"} 
-                        alt="placeholder" 
-                        height={40} 
-                        width={50}
-                        className='rounded-full border-2 border-blue-900 max-h-12'
+                            src={friend.avatar || "/circle.png"} 
+                            alt="avatar" 
+                            height={40} 
+                            width={50}
+                            className='rounded-full border-2 border-blue-900 max-h-12'
                         />
                         <h2 className='text-blue-300 text-2xl pr-5'>{friend.Username}</h2>
                         {onStartMessage ? (
@@ -89,6 +95,8 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
                             avatar={friend.avatar || '/circle.png'}
                             bio={friend.bio || 'No bio available'} 
                             onUserBlocked={() => handleUserBlocked(friend.UserID)}
+                            isOpen={openUserID === friend.UserID}
+                            onToggle={() => handleToggleUserOptions(friend.UserID)}
                         />
                     </div>
                 ))
