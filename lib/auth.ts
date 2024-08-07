@@ -13,6 +13,7 @@ interface CustomUser extends NextAuthUser {
   bio?: string;
   avatar?: string;
   phone?: string | null;
+  banner?: string | null;
 }
 
 export const authConfig: NextAuthOptions = {
@@ -91,7 +92,8 @@ export const authConfig: NextAuthOptions = {
           avatar: profile.picture,
           username: profile.email.split('@')[0], // Use email prefix as username
           bio: '', 
-          phone: null
+          phone: null,
+          banner: null
         }
       }
     }),
@@ -110,12 +112,13 @@ export const authConfig: NextAuthOptions = {
             'SELECT * FROM users WHERE email = ?',
             [customUser.email]
           );
-  
+          console.log('Existing users:', existingUsers);
+    
           if (existingUsers.length === 0) {
             // User doesn't exist, create a new one
             const [result] = await pool.query<ResultSetHeader>(
-              'INSERT INTO users (email, username) VALUES (?, ?)',
-              [customUser.email, customUser.username]
+              'INSERT INTO users (email, username, avatar) VALUES (?, ?, ?)',
+              [customUser.email, customUser.username, customUser.avatar]
             );
             customUser.id = result.insertId.toString();
           } else {
@@ -124,14 +127,27 @@ export const authConfig: NextAuthOptions = {
             customUser.id = existingUser.UserID.toString();
             customUser.username = existingUser.Username;
             customUser.bio = existingUser.Bio;
-            customUser.avatar = existingUser.Avatar;
-            customUser.phone = existingUser.Phone;
-
-            // Update the user's information if needed
-            await pool.query(
-              'UPDATE users SET username = ?, avatar = ? WHERE email = ?',
-              [customUser.username, customUser.avatar, customUser.email]
-            );
+            customUser.avatar = customUser.avatar || existingUser.avatar; // Use Google avatar if provided, otherwise keep existing
+            customUser.banner = existingUser.banner;
+            customUser.phone = existingUser.phone;
+    
+            // Update the user's information if needed, only updating fields that are provided
+            const updateFields = [];
+            const updateValues = [];
+            if (customUser.username) {
+              updateFields.push('username = ?');
+              updateValues.push(customUser.username);
+            }
+            if (customUser.avatar) {
+              updateFields.push('avatar = ?');
+              updateValues.push(customUser.avatar);
+            }
+            
+            if (updateFields.length > 0) {
+              const query = `UPDATE users SET ${updateFields.join(', ')} WHERE email = ?`;
+              updateValues.push(customUser.email);
+              await pool.query(query, updateValues);
+            }
           }
           return true;
         } catch (error) {
@@ -149,7 +165,9 @@ export const authConfig: NextAuthOptions = {
           session.user.avatar = token.avatar as string | null | undefined;
           session.user.email = token.email as string | undefined;
           session.user.phone = token.phone as string | null | undefined;
+          session.user.banner = token.banner as string | null | undefined;
       }
+      console.log('Updated session:', session);
       return session;
     },
     async jwt({ token, user, trigger, session }) {
@@ -160,6 +178,7 @@ export const authConfig: NextAuthOptions = {
           token.avatar = session.user.avatar;
           token.email = session.user.email;
           token.phone = session.user.phone;
+          token.banner = session.user.banner;
       }
       if (user) {
           // When user signs in or token is created
@@ -176,6 +195,9 @@ export const authConfig: NextAuthOptions = {
                   token.avatar = dbUser.avatar;
                   token.email = dbUser.Email;
                   token.phone = dbUser.phone;
+                  token.banner = dbUser.banner;
+              } else {
+                console.log('User not found in database');
               }
           } catch (error) {
               console.error('Error fetching user data in JWT callback:', error);

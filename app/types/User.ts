@@ -5,4 +5,5 @@ export interface User {
     email: string;
     avatar: string | null;
     phone?: number | string | null;
+    banner?: string | null;
 }

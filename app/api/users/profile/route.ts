@@ -15,14 +15,27 @@ export async function PUT(req: NextRequest) {
     const username = formData.get('username') as string;
     const bio = formData.get('bio') as string;
     const avatar = formData.get('avatar') as File;
+    const banner = formData.get('banner') as File;
 
     let avatarPath = session.user.avatar;
+    let bannerPath = session.user.banner;
     if (avatar) {
         const bytes = await avatar.arrayBuffer();
         const buffer = Buffer.from(bytes);
         const filename = `${session.user.id}-${Date.now()}.${avatar.type.split('/')[1]}`;
         avatarPath = `/uploads/${filename}`;
         const fullPath = path.join(process.cwd(), 'public', avatarPath);
+
+        await mkdir(path.dirname(fullPath), { recursive: true });
+
+        await writeFile(fullPath, buffer);
+    }
+    if (banner) {
+        const bytes = await banner.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const filename = `${session.user.id}-${Date.now()}.${banner.type.split('/')[1]}`;
+        bannerPath = `/uploads/${filename}`;
+        const fullPath = path.join(process.cwd(), 'public', bannerPath);
 
         await mkdir(path.dirname(fullPath), { recursive: true });
 
@@ -35,11 +48,11 @@ export async function PUT(req: NextRequest) {
             await connection.beginTransaction();
 
             await connection.query(
-                'UPDATE users SET username = ?, bio = ?, avatar = ? WHERE UserID = ?',
-                [username, bio, avatarPath, session.user.id]
+                'UPDATE users SET username = ?, bio = ?, avatar = ?, banner = ? WHERE UserID = ?',
+                [username, bio, avatarPath, bannerPath, session.user.id]
             );
             const [updatedUser] : any[] = await connection.query(
-                'SELECT UserID, Username, Email, bio, avatar FROM users WHERE UserID = ?',
+                'SELECT UserID, Username, Email, bio, avatar, banner FROM users WHERE UserID = ?',
                 [session.user.id]
             );
             await connection.commit();
@@ -52,6 +65,13 @@ export async function PUT(req: NextRequest) {
                     session.user.avatar = updatedUser[0].avatar;
                     if (oldAvatar && oldAvatar !== '/uploads/default-avatar.png') {
                         await unlink(path.join(process.cwd(), 'public', oldAvatar));
+                    }
+                }
+                if (banner) {
+                    const oldBanner = session.user.banner;
+                    session.user.banner = updatedUser[0].banner;
+                    if (oldBanner && oldBanner !== '/uploads/default-banner.png') {
+                        await unlink(path.join(process.cwd(), 'public', oldBanner));
                     }
                 }
             } catch {
