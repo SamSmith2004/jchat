@@ -9,6 +9,7 @@ interface UserOptionsProps {
     Username: string;
     avatar: string;
     bio: string;
+    banner: string;
     onUserBlocked?: () => void; 
     isOpen: boolean;
     onToggle: () => void;
@@ -19,6 +20,7 @@ interface UserDetailsDisplayProps {
     Username: string;
     avatar: string;
     bio: string;
+    banner: string;
     onClose: () => void;
 }
 
@@ -29,35 +31,45 @@ interface MenuPosition {
     right?: number;
 }
 
-const UserDetailsDisplay: React.FC<UserDetailsDisplayProps> = ({ Username, avatar, bio, onClose }) => (
+const UserDetailsDisplay: React.FC<UserDetailsDisplayProps> = ({ Username, avatar, bio, banner, onClose }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-gray-900 p-6 rounded-lg max-w-2xl w-full relative">
-            <button 
+        <div className="bg-gray-900 rounded-lg max-w-2xl w-full relative overflow-hidden">
+            <button
                 onClick={onClose}
-                className="absolute top-2 right-2 px-2.5 py- text-red-500 rounded-lg hover:font-extrabold hover:text-red-700 text-xl font-semibold"
+                className="absolute top-2 right-2 px-2.5 py-1 text-red-500 rounded-lg hover:font-extrabold hover:text-red-700 text-xl font-semibold z-10"
             >
                 x
             </button>
-            <div className='flex space-y-5 flex-row'>
-                <Image 
-                    src={avatar || "/circle.png"} 
-                    alt={Username} 
-                    width={100} 
-                    height={100} 
-                    className="rounded-full border-2 border-blue-900 mb-4 max-h-24" 
-                    onError={(e) => {
-                        e.currentTarget.src = "/circle.png";
-                    }}
-                />
-                <h2 className="ml-5 mt-10 text-2xl font-semibold text-blue-400">{Username}</h2>
+            <div className="relative">
+                <div
+                    className="h-48 w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${banner || 'https://images.pexels.com/photos/281260/pexels-photo-281260.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'})` }}
+                ></div>
+                <div className="absolute bottom-0 left-0 right-0 transform translate-y-1/2 flex items-center bg-gray-900">
+                    <div className="flex items-center w-full px-6">
+                        <Image
+                            src={avatar || "/circle.png"}
+                            alt={Username}
+                            width={100}
+                            height={100}
+                            className="rounded-full border-2 border-blue-900 -mt-8"
+                            onError={(e) => {
+                                e.currentTarget.src = "/circle.png";
+                            }}
+                        />
+                        <h2 className="ml-4 -mt-6 text-2xl font-semibold text-blue-400">{Username}</h2>
+                    </div>
+                </div>
             </div>
-            <h3 className='text-blue-500 text-xl font-bold mb-2 mt-2'>About Me:</h3>
-            <div className='border border-blue-900 bg-gray-900 text-blue-300 p-2 rounded mb-4 w-5/6 h-fit'>{bio || 'No bio available'}</div>
+            <div className="mt-10 p-6">
+                <h3 className='text-blue-500 text-xl font-bold mb-2 mt-2'>About Me:</h3>
+                <div className='border border-blue-900 bg-gray-900 text-blue-300 p-2 rounded mb-4 w-5/6 h-fit'>{bio || 'No bio available'}</div>
+            </div>
         </div>
     </div>
 );
 
-export default function UserOptions({ UserID, Username, avatar, bio, onUserBlocked, isOpen, onToggle }: UserOptionsProps) {
+export default function UserOptions({ UserID, Username, avatar, bio, banner, onUserBlocked, isOpen, onToggle }: UserOptionsProps) {
     const [menuPosition, setMenuPosition] = useState<MenuPosition>({});
     const [showDetails, setShowDetails] = useState(false);
     const [showUserDetails, setShowUserDetails] = useState(false);
@@ -211,6 +223,7 @@ export default function UserOptions({ UserID, Username, avatar, bio, onUserBlock
                     Username={Username}
                     avatar={avatar}
                     bio={bio}
+                    banner={banner || 'https://images.pexels.com/photos/281260/pexels-photo-281260.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'}
                     onClose={() => setShowUserDetails(false)}
                 />
             )}

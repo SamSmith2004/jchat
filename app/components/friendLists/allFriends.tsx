@@ -94,6 +94,7 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
                             Username={friend.Username}
                             avatar={friend.avatar || '/circle.png'}
                             bio={friend.bio || 'No bio available'} 
+                            banner={friend.banner || 'https://images.pexels.com/photos/281260/pexels-photo-281260.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'}
                             onUserBlocked={() => handleUserBlocked(friend.UserID)}
                             isOpen={openUserID === friend.UserID}
                             onToggle={() => handleToggleUserOptions(friend.UserID)}

@@ -151,7 +151,7 @@ export default function Profile() {
                         onError={() => setAvatarPreview('/uploads/default-avatar.png')}
                     />
                 </div>
-                <h1 className="text-5xl text-blue-500 mt-16 ml-5">{username || 'unknown'}!</h1>
+                <h1 className="text-5xl text-blue-500 mt-12 ml-5">{username || 'unknown'}!</h1>
             </div>
             {error && <p className="text-red-500 mt-4">{error}</p>}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-5">
