@@ -73,8 +73,10 @@ messaging.on('connection', (socket: Socket) => {
         socket.join(room);
     });
     socket.on('send_message', (message) => {
+        const timestamp = new Date().toISOString();
         const room = [message.sender_id, message.receiver_id].sort().join('-');
-        messaging.to(room).emit('new_message', message);
+        const newMessage = { ...message, timestamp };
+        messaging.to(room).emit('new_message', newMessage);
     });
 });
 

@@ -8,9 +8,8 @@ interface StartMessageProps {
 
 export default function StartMessage({ friendId, friendUsername }: StartMessageProps) {
     const router = useRouter();
-
     const handleStartMessage = () => {
-        router.push(`/message?friendId=${friendId}&friendUsername=${encodeURIComponent(friendUsername)}`);
+        router.replace(`/message?friendId=${friendId}&friendUsername=${encodeURIComponent(friendUsername)}`);
     };
 
     return (

@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { CustomSession } from '@/app/types/customSession';
 import MessageList from '@/app/components/messaging/messageList';
 import MessageInput from '@/app/components/messaging/messageInput';
+import { useRouter } from 'next/navigation';
 import AllFriends from "../components/friendLists/allFriends";
 import { useSearchParams } from 'next/navigation';
 
@@ -15,6 +16,7 @@ interface LastMessagedFriend {
 }
 
 export default function Message() {
+    const router = useRouter();
     const { data: session } = useSession() as { data: CustomSession | null };
     const [lastMessaged, setLastMessaged] = useState<LastMessagedFriend[]>([]);
     const [selectedFriend, setSelectedFriend] = useState<LastMessagedFriend | null>(null);
@@ -22,7 +24,7 @@ export default function Message() {
     const UserID = Number(session?.user?.id);
     const searchParams = useSearchParams();
 
-    async function fetchLastMessaged(userId: number) {
+    const fetchLastMessaged = useCallback(async (userId: number) => {
         try {
             const response = await fetch(`/api/messages/lastMessaged?userId=${userId}`);
             if (!response.ok) {
@@ -31,12 +33,38 @@ export default function Message() {
             const { message, data } = await response.json();
             console.log(message);
             setLastMessaged(data);
-            setNoConversations(data.length === 0);
+
+            const friendUsername = searchParams.get('friendUsername');
+            const friendId = searchParams.get('friendId');
+            if (friendUsername && friendId) {
+                const newFriend: LastMessagedFriend = {
+                    UserID: Number(friendId), 
+                    Username: decodeURIComponent(friendUsername),
+                    LastMessageTime: new Date().toISOString(),
+                };
+
+                // Check if the newFriend already exists in the lastMessaged array
+                const existingFriend = data.find((f : any) => f.UserID === newFriend.UserID);
+                if (existingFriend) {
+                    // Update the existing friend's last message time
+                    setLastMessaged((prev) =>
+                        prev.map((f) => (f.UserID === newFriend.UserID ? newFriend : f))
+                    );
+                } else {
+                    // Add the new friend to the beginning of the array
+                    setLastMessaged([newFriend, ...data]);
+                }
+
+                setSelectedFriend(newFriend);
+                setNoConversations(false);
+            } else {
+                setNoConversations(data.length === 0);
+            }
         } catch (error) {
             console.error('Error fetching last messaged friends:', error);
             setNoConversations(true);
         }
-    }
+    }, [searchParams]);
 
     const handleStartMessage = useCallback((friendId: number, friendUsername: string) => {
         const newFriend = {
@@ -45,11 +73,11 @@ export default function Message() {
             LastMessageTime: new Date().toISOString()
         };
 
-        setLastMessaged(prev => {
-            const existingFriend = prev.find(f => f.UserID === friendId);
+        setLastMessaged((prev) => {
+            const existingFriend = prev.find((f) => f.UserID === friendId);
             if (existingFriend) {
                 // Update existing friend's last message time
-                return prev.map(f => f.UserID === friendId ? newFriend : f);
+                return prev.map((f) => (f.UserID === friendId ? newFriend : f));
             } else {
                 // Add new friend to the list
                 return [newFriend, ...prev];
@@ -58,19 +86,21 @@ export default function Message() {
 
         setSelectedFriend(newFriend);
         setNoConversations(false);
-    }, []);
+
+        router.replace(`/message?friendId=${friendId}&friendUsername=${encodeURIComponent(friendUsername)}`);
+    }, [router]);
 
     useEffect(() => {
         if (session?.user?.id) {
             fetchLastMessaged(UserID);
         }
-    }, [session, UserID]);
+    }, [session, UserID, fetchLastMessaged]);
 
     useEffect(() => {
         const friendId = searchParams.get('friendId');
         const friendUsername = searchParams.get('friendUsername');
         if (friendId && friendUsername) {
-            handleStartMessage(Number(friendId), decodeURIComponent(friendUsername));
+          handleStartMessage(Number(friendId), decodeURIComponent(friendUsername));
         }
     }, [searchParams, handleStartMessage]);
 
@@ -91,7 +121,7 @@ export default function Message() {
                                 <h2
                                     key={friend.UserID}
                                     className='text-blue-300 text-lg cursor-pointer'
-                                    onClick={() => setSelectedFriend(friend)}
+                                    onClick={() => handleStartMessage(friend.UserID, friend.Username)}
                                 >
                                     {friend.Username}
                                 </h2>
