@@ -1,5 +1,6 @@
 # TODO
-- Handle user still online when tab closed but browser open and move to realtime checks over interval [med]
 - Add account disable/removal logic to settings [low]
+- Fix sql too many connections bug (messaging) [high]
+- Fix aspect ration on messageInput.tsx [low]
 
 - Incomplete pages: Home, settings/appearance, settings/privacy

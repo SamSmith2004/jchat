@@ -15,9 +15,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: ["http://localhost:3000", "https://localhost:8080"],
         methods: ["GET", "POST"]
-    } // allow only localhost:3000 to connect and only allow GET and POST requests
+    }
 });
 
 const redis = new Redis({
