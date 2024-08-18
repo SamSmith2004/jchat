@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '@/backend/src/config/database';
 import { RowDataPacket } from 'mysql2';
+import { io } from '@/backend/src/server/src/index'; 
 
 interface UserCountResult extends RowDataPacket {
     count: number;
@@ -40,6 +41,27 @@ export async function POST(req: NextRequest) {
             'INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)',
             [senderId, receiverId, content]
         );
+
+        const [messageResult] : any[] = await connection.execute(
+            'SELECT LAST_INSERT_ID() as id'
+        );
+        const messageId = messageResult[0].id;
+
+        const [senderResult] : any[] = await connection.execute(
+            'SELECT username FROM users WHERE UserID = ?',
+            [senderId]
+        );
+        const senderName = senderResult[0]?.username;
+          
+        // Emit notification using the imported io instance
+        io.of('/notifications').to(receiverId.toString()).emit('new_notification', {
+            id: messageId,
+            content: `New message from ${senderName}`,
+            sender_name: senderName,
+            timestamp: new Date().toISOString(),
+            sender_id: senderId,
+            receiver_id: receiverId
+        });
     
         return NextResponse.json({ message: 'Message sent successfully' });
     } catch (error: any) {
