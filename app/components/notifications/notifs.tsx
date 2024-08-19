@@ -10,21 +10,18 @@ interface NotificationsProps {
 }
 
 interface Notification {
-  id: number;
-  content: string;
-  sender_name: string;
-  timestamp: string;
   sender_id: number;
+  sender_name: string;
+  message_count: number;
+  latest_timestamp: string;
 }
-
-const notificationSound = typeof Audio !== 'undefined' ? new Audio('/notification.mp3') : null;
 
 export default function Notifications({ session }: NotificationsProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     async function fetchNotifications() {
@@ -60,6 +57,7 @@ export default function Notifications({ session }: NotificationsProps) {
       fetchNotifications();
       if (audioRef.current) {
         audioRef.current.play().catch(e => console.error('Error playing audio:', e));
+        console.log('audioRef.current'); // sucessfully logs
       }
     });
   
@@ -68,48 +66,31 @@ export default function Notifications({ session }: NotificationsProps) {
     };
   }, [session]);
 
-  async function markAsRead(messageId: number) {
+  async function markAsRead(sender_id: number) {
     try {
       const response = await fetch('/api/notifications', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messageId }),
+        body: JSON.stringify({ sender_id }),
       });
 
       if (!response.ok) {
         throw new Error('Failed to mark message as read');
       }
 
-      // Remove the marked notification from the list
-      setNotifications(notifications.filter(n => n.id !== messageId));
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter((notification) => notification.sender_id !== sender_id)
+      );
     } catch (error) {
       console.error('Error marking message as read:', error);
-      setError('Failed to mark message as read');
     }
   }
 
   const handleStartMessage = (friendId: number, friendUsername: string) => {
     router.replace(`/message?friendId=${friendId}&friendUsername=${encodeURIComponent(friendUsername)}`);
-    async function markAsReadR(sender_id: number) {
-      try {
-        const response = await fetch('/api/notifications', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ sender_id }),
-        });
-  
-        if (!response.ok) {
-          throw new Error('Failed to mark message as read');
-        }
-      } catch (error) {
-        console.error('Error marking message as read:', error);
-      }
-  }
-  markAsReadR(friendId);
+    markAsRead(friendId);
   };
 
   if (isLoading) return <div className='text-blue-300'>Loading notifications...</div>;
@@ -117,12 +98,16 @@ export default function Notifications({ session }: NotificationsProps) {
 
   return (
     <div className="text-blue-500">
+      <audio ref={audioRef} src="/notification.mp3" />
       <h3 className='text-xl mt-1 mb-3'>Notifications:</h3>
       {notifications.length > 0 ? (
         notifications.map((notification) => (
-          <div key={notification.id} className="mb-2 flex justify-center items-center space-x-2">
-            <Image src='/notif.png' alt='Notif Icon' height={30} width={30}></Image>
-            {notification.sender_name}
+          <div key={notification.sender_id} className="mb-2 flex justify-center items-center space-x-2">
+            <Image src='/notif.png' alt='Notif Icon' height={30} width={30} />
+            <span>{notification.sender_name}</span>
+            <span className="text-blue-300">
+              ({notification.message_count} {notification.message_count === 1 ? 'message' : 'messages'})
+            </span>
             <button
               className="ml-2 px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => handleStartMessage(notification.sender_id, notification.sender_name)}
@@ -130,12 +115,12 @@ export default function Notifications({ session }: NotificationsProps) {
               View
             </button>
             <button
-              onClick={() => markAsRead(notification.id)}
+              onClick={() => markAsRead(notification.sender_id)}
               className="ml-2 px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Mark as Read
             </button>
-            <p className='text-blue-300 text-sm'>{new Date(notification.timestamp).toLocaleString()}</p>
+            <p className='text-blue-300 text-sm'>{new Date(notification.latest_timestamp).toLocaleString()}</p>
           </div>
         ))
       ) : (
