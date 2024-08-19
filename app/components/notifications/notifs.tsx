@@ -21,7 +21,7 @@ export default function Notifications({ session }: NotificationsProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
     async function fetchNotifications() {
@@ -49,22 +49,38 @@ export default function Notifications({ session }: NotificationsProps) {
     const socket = io('http://localhost:8080/notifications');
   
     socket.on('connect', () => {
-      console.log('Connected to notifications socket');
+      //console.log('Connected to notifications socket');
       socket.emit('join_notifications', session.user.id);
     });
   
     socket.on('new_notification', () => {
       fetchNotifications();
-      if (audioRef.current) {
-        audioRef.current.play().catch(e => console.error('Error playing audio:', e));
-        console.log('audioRef.current'); // sucessfully logs
-      }
+      playNotificationSound();
     });
   
     return () => {
       socket.disconnect();
     };
   }, [session]);
+
+  const playNotificationSound = async () => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      const response = await fetch('/notification.mp3');
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContextRef.current.destination);
+      source.start(0);
+    } catch (error) {
+      console.error('Failed to play notification sound:', error);
+    }
+  };
 
   async function markAsRead(sender_id: number) {
     try {
@@ -98,7 +114,6 @@ export default function Notifications({ session }: NotificationsProps) {
 
   return (
     <div className="text-blue-500">
-      <audio ref={audioRef} src="/notification.mp3" />
       <h3 className='text-xl mt-1 mb-3'>Notifications:</h3>
       {notifications.length > 0 ? (
         notifications.map((notification) => (
