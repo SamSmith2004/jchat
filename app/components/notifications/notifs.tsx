@@ -4,6 +4,7 @@ import { CustomSession } from "@/app/types/customSession";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import io from 'socket.io-client';
+import { playNotificationSound, notifEnabledCheck } from '@/lib/notifUtils';
 
 interface NotificationsProps {
   session: CustomSession;
@@ -62,25 +63,6 @@ export default function Notifications({ session }: NotificationsProps) {
       socket.disconnect();
     };
   }, [session]);
-
-  const playNotificationSound = async () => {
-    try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
-
-      const response = await fetch('/notification.mp3');
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContextRef.current.destination);
-      source.start(0);
-    } catch (error) {
-      console.error('Failed to play notification sound:', error);
-    }
-  };
 
   async function markAsRead(sender_id: number) {
     try {

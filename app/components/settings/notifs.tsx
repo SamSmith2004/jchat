@@ -1,11 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const NotifsSettings: React.FC = () => {
     const [notifEnabled, setNotifEnabled] = useState(true);
-    function toggleNotifs() {
-        //Will Add logic to disable notifications here later
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
-        setNotifEnabled(!notifEnabled);
+    useEffect(() => {
+        async function fetchNotifSettings() {
+            setIsLoading(true);
+            try {
+                const response = await fetch('/api/settings/notifSettings');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch notification settings');
+                }
+                const data = await response.json();
+                setNotifEnabled(data.notifAudio !== 0);
+            } catch (error) {
+                setError('Failed to fetch notification settings');
+                console.error('Error fetching notification settings:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        fetchNotifSettings();
+    }, []);
+
+    async function toggleNotifs() {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const result = await fetch('/api/settings/notifSettings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notifAudio: notifEnabled }),
+            });
+
+            if (!result.ok) {
+                throw new Error('Failed to toggle notifications');
+            }
+            const data = await result.json();
+            //console.log('Data:', data);
+            setNotifEnabled(data);
+        } catch (error) {
+            setError('Failed to toggle notifications');
+            console.error('Error toggling notifications:', error);
+        } finally {
+            setIsLoading(false);
+        }
     }
     return (
         <>
@@ -17,6 +61,8 @@ const NotifsSettings: React.FC = () => {
                 onClick={toggleNotifs}
                 >{notifEnabled ? 'Disable' : 'Enable'}</button>
             </div>
+            {isLoading && <div className='text-blue-300'>Loading...</div>}
+            {error && <div className='text-red-500'>{error}</div>}
         </>
     );
 }
