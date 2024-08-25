@@ -1,5 +1,4 @@
 # TODO
-- Add account disable/removal logic to settings [low]
 - Fix sql too many connections bug (messaging) [Unable-to-recreate-bug]
 - Fix aspect ratio on messageInput.tsx [low]
 - Audio notifs are limited to home page [low]
