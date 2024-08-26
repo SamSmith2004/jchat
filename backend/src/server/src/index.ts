@@ -82,6 +82,7 @@ messaging.on('connection', (socket: Socket) => {
     // Emit a notification to the receiver
     notifications.to(message.receiver_id.toString()).emit('new_notification', {
       id: Date.now(), // might want to use a proper ID from database
+      senderId: message.sender_id,
       content: `New message from ${message.sender_name}`,
       sender_name: message.sender_name,
       timestamp: timestamp,

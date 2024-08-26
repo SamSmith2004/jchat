@@ -2,6 +2,7 @@
 
 import { SessionProvider } from "next-auth/react"
 import useHandleStatus from "./components/status/handleStatus";
+import { NotifSocket } from "@/lib/notifUtils";
 
 export default function ClientLayout({
   children,
@@ -10,12 +11,19 @@ export default function ClientLayout({
 }>) {
   return (
     <SessionProvider>
-      <StatusHandler>{children}</StatusHandler>
+      <StatusHandler>
+        <NotificationHandler>{children}</NotificationHandler>
+        </StatusHandler>
     </SessionProvider>
   );
 }
 
 function StatusHandler({ children }: { children: React.ReactNode }) {
   useHandleStatus();
+  return <>{children}</>;
+}
+
+function NotificationHandler({ children }: { children: React.ReactNode }) {
+  NotifSocket();
   return <>{children}</>;
 }
