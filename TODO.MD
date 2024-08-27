@@ -1,6 +1,3 @@
 # TODO
-- Fix sql too many connections bug (messaging) [Unable-to-recreate-bug]
-- Fix aspect ratio on messageInput.tsx [low]
-- Add notif icon to message navbar [IDEA]
-
-- Incomplete pages: Home, settings/appearance, settings/privacy
+- Impement groupChats/servers [MAYBE]
+- Add light/Dark mode [high]

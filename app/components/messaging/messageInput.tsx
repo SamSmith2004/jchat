@@ -68,10 +68,10 @@ export default function MessageInput({ userId, friendId }: { userId: number, fri
             <div className="flex">
                 <Image 
                 src={session?.user.avatar || "/circle.png"} 
-                width={60} 
+                width={40} 
                 height={40} 
                 alt="Upload"
-                className='rounded-full border-2 border-blue-900 mr-1' 
+                className='rounded-full border-2 border-blue-900 mr-1 w-16 h-16' 
                 />
                 <textarea
                     value={message}
