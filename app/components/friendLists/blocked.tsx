@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { CustomSession } from '@/app/types/customSession';
+import { useTheme } from '@/app/components/theme/themeProvider';
 import { useEffect, useState } from 'react';
 
 interface BlockedUser {
@@ -15,6 +16,7 @@ export default function Blocked() {
     const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
         if (!session?.user?.id) return;
@@ -85,7 +87,7 @@ export default function Blocked() {
                     className='rounded-full border-2 border-blue-900 max-h-12'
                     />
                     <h2 className='text-blue-300 text-2xl'>{blockedUser.Username}</h2>
-                    <button onClick={() => unblockUser(blockedUser.UserID)} className="bg-gray-900 border border-blue-900 rounded-md p-1 text-blue-500 hover:font-semibold text-lg">Unblock</button>
+                    <button onClick={() => unblockUser(blockedUser.UserID)} className={`border ${theme === 'light' ? 'bg-gray-200 border-blue-700' : 'bg-gray-900 border-blue-900'} rounded-md p-1 text-blue-500 hover:font-semibold text-lg`}>Unblock</button>
                 </div>
             ))
         ) : (

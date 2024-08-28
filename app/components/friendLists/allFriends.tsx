@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { CustomSession } from '@/app/types/customSession';
 import StartMessage from '@/app/components/messaging/startMessage';
 import UserOptions from '@/app/components/user/userOptions';
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 interface AllFriendsProps {
     onStartMessage?: (friendId: number, friendUsername: string) => void;
@@ -16,6 +17,7 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
     const [friendsList, setFriendsList] = useState<CustomSession[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -78,7 +80,7 @@ export default function AllFriends({ onStartMessage }: AllFriendsProps) {
                         <h2 className='text-blue-300 text-2xl pr-5'>{friend.Username}</h2>
                         {onStartMessage ? (
                             <button
-                                className='hover:font-semibold text-lg bg-gray-900 border border-blue-900 rounded-md p-1'
+                                className={`hover:font-semibold text-lg border ${theme === 'light' ? 'bg-gray-200 border-blue-700' : 'bg-gray-900 border-blue-900'} rounded-md p-1`}
                                 onClick={() => onStartMessage(friend.UserID, friend.Username)}
                             >
                                 Message

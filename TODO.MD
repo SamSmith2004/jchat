@@ -1,3 +1,4 @@
 # TODO
 - Impement groupChats/servers [MAYBE]
-- Add light/Dark mode [high]
+- Polish css [med]
+- Optimise

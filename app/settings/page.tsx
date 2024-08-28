@@ -2,6 +2,7 @@
 import { Navbar } from "../components/navbar";
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 import AccountSettings from '@/app/components/settings/account';
 import PrivacySettings from '@/app/components/settings/privacy';
@@ -14,6 +15,7 @@ export default function Settings() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [listType, setListType] = useState<ListType>("account");
+    const { theme } = useTheme();
 
     useEffect(() => {
         const paramValue = searchParams.get("list");
@@ -47,7 +49,7 @@ export default function Settings() {
 
 
     return (
-        <main className="flex flex-col">
+        <main className={`flex flex-col ${theme === 'light' ? 'bg-white' : 'bg-black'}`}>
             <Navbar />
             <div className="flex justify-between items-start"> 
                 <div className='flex space-y-5 flex-col border-r border-blue-900 pt-5 pr-24 pl-10 text-blue-300 h-screen'>

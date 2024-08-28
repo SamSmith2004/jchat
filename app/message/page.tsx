@@ -8,6 +8,7 @@ import MessageInput from '@/app/components/messaging/messageInput';
 import { useRouter } from 'next/navigation';
 import AllFriends from "../components/friendLists/allFriends";
 import { useSearchParams } from 'next/navigation';
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 interface LastMessagedFriend {
     UserID: number;
@@ -23,6 +24,7 @@ export default function Message() {
     const [noConversations, setNoConversations] = useState(false);
     const UserID = Number(session?.user?.id);
     const searchParams = useSearchParams();
+    const { theme } = useTheme();
 
     const fetchLastMessaged = useCallback(async (userId: number) => {
         try {
@@ -123,7 +125,7 @@ export default function Message() {
     }, [searchParams, handleStartMessage]);
 
     return (
-        <main className="flex flex-col">
+        <main className={`flex flex-col ${theme === 'light' ? 'bg-white' : 'bg-black'}`}>
             <Navbar />
             <div className="flex justify-between items-start">
                 <div className='flex space-y-5 flex-col border-r border-blue-900 pt-5 pr-8 pl-10 text-blue-500 h-screen'>

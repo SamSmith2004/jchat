@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 const NotifsSettings: React.FC = () => {
     const [notifEnabled, setNotifEnabled] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { theme } = useTheme();
 
     useEffect(() => {
         async function fetchNotifSettings() {
@@ -57,7 +59,7 @@ const NotifsSettings: React.FC = () => {
             <div className="flex gap-2">
                 <h2 className="text-blue-500 text-xl font-bold mt-1">Notifications:</h2>
                 <button 
-                className="hover:font-bold px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+                className={`hover:font-bold px-2 py-1 ${theme === 'light' ? 'bg-gray-400 border-blue-700' : 'bg-gray-900 border-blue-900'} border text-blue-500 font-semibold rounded text-lg`}
                 onClick={toggleNotifs}
                 >{notifEnabled ? 'Disable' : 'Enable'}</button>
             </div>

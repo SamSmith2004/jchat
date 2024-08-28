@@ -2,6 +2,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { CustomSession } from "@/app/types/customSession";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/app/components/theme/themeProvider";
 import { useRouter } from "next/navigation";
 
 export default function AccountSettings() {
@@ -14,9 +15,9 @@ export default function AccountSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
-    useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
   const router = useRouter();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -184,7 +185,7 @@ export default function AccountSettings() {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-gray-900 p-6 rounded-lg border border-blue-500">
+        <div className={`${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} p-6 rounded-lg border border-blue-500`}>
           <p className="text-blue-500 mb-4">
             Are you sure you want to delete your account? This cannot be undone.
           </p>
@@ -223,11 +224,11 @@ export default function AccountSettings() {
           placeholder={session?.user.email || "Email"}
           value={email || ""}
           onChange={(e) => setEmail(e.target.value)}
-          className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400
-                placeholder:text-blue-400 mt-2 w-96 p-2"
+          className={`border-2 border-blue-900 rounded-md ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} text-blue-400
+                placeholder:text-blue-400 mt-2 w-96 p-2`}
         />
         <button
-          className="hover:font-bold ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+          className={`hover:font-bold ml-2 mt-5 px-2 py-1 ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} border border-blue-900 text-blue-500 font-semibold rounded text-lg`}
           type="submit"
         >
           Update
@@ -242,11 +243,11 @@ export default function AccountSettings() {
           placeholder="Phone Number"
           value={phone || ""}
           onChange={(e) => setPhone(Number(e.target.value))}
-          className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400
-                placeholder:text-blue-400 mt-2 w-96 p-2"
+          className={`border-2 border-blue-900 rounded-md ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} text-blue-400
+          placeholder:text-blue-400 mt-2 w-96 p-2`}
         />
         <button
-          className="hover:font-bold ml-2 mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
+          className={`hover:font-bold ml-2 mt-5 px-2 py-1 ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} border border-blue-900 text-blue-500 font-semibold rounded text-lg`}
           type="submit"
         >
           Update
@@ -265,8 +266,8 @@ export default function AccountSettings() {
             placeholder="Old Password"
             value={oldPassword}
             onChange={(e) => setOldPassword(e.target.value)}
-            className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400
-                        placeholder:text-blue-400 mt-2 w-96 p-2"
+            className={`border-2 border-blue-900 rounded-md ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} text-blue-400
+            placeholder:text-blue-400 mt-2 w-96 p-2`}
           />
           <label className="text-blue-500 text-xl font-bold mr-2 mt-2">
             New Password:
@@ -276,8 +277,8 @@ export default function AccountSettings() {
             placeholder="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400
-                        placeholder:text-blue-400 mt-2 w-96 p-2"
+            className={`border-2 border-blue-900 rounded-md ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} text-blue-400
+            placeholder:text-blue-400 mt-2 w-96 p-2`}
           />
           <label className="text-blue-500 text-xl font-bold mr-2 mt-2">
             Confirm Password:
@@ -287,12 +288,12 @@ export default function AccountSettings() {
             placeholder="Confirm password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400
-                        placeholder:text-blue-400 mt-2 w-96 p-2"
+            className={`border-2 border-blue-900 rounded-md ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} text-blue-400
+            placeholder:text-blue-400 mt-2 w-96 p-2`}
           />
           <button
             type="submit"
-            className="hover:font-extrabold mt-5 px-2 py-1 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg mb-5 w-full"
+            className={`hover:font-extrabold mt-5 px-2 py-1 ${theme === 'light' ? 'bg-gray-300' : 'bg-gray-900'} border border-blue-900 text-blue-500 font-semibold rounded text-lg mb-5 w-full`}
           >
             Update
           </button>
@@ -309,7 +310,7 @@ export default function AccountSettings() {
           </button>**/}
         <button
           onClick={HandleDeleteAccount}
-          className="text-white hover:font-bold bg-gray-900 rounded-md px-5 py-2 border border-red-500"
+          className="text-white hover:font-bold bg-red-500 rounded-md px-5 py-2 border border-red-500"
         >
           Delete
         </button>

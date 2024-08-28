@@ -4,6 +4,7 @@ import { CustomSession } from "@/app/types/customSession";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import io from 'socket.io-client';
+import { useTheme } from '@/app/components/theme/themeProvider';
 import { playNotificationSound, notifEnabledCheck } from '@/lib/notifUtils';
 
 interface NotificationsProps {
@@ -22,6 +23,7 @@ export default function Notifications({ session }: NotificationsProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { theme } = useTheme();
   const audioContextRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import SignOutButton from "./login/signOut";
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 export function Navbar() {
+  const { theme } = useTheme();
   return (
-    <nav className="flex justify-between items-center p-5 border-b border-blue-900 ">
+    <nav className={`flex justify-between items-center p-5 border-b ${theme === 'light' ? 'bg-white border-blue-700 ' : 'bg-black border-blue-900 '}`}>
       <div className="flex items-center">
         <Link href="/home">
           <Image src="/home.png" alt="home" width={40} height={30} />
@@ -30,7 +32,7 @@ export function Navbar() {
         <li>
           <Link href="/settings">
             <Image
-              src="/settings-icon.jpg"
+              src={theme === 'light' ? '/settings-icon-light.png' : '/settings-icon.jpg'}
               alt="Settings"
               width={30}
               height={30}

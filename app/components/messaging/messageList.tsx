@@ -3,6 +3,7 @@ import React from 'react';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 interface Message {
     id: number;
@@ -18,6 +19,7 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
     const socketRef = useRef<any>(null);
     const chatboxRef = useRef<HTMLDivElement | null>(null);
     const router = useRouter();
+    const { theme } = useTheme();
 
     const fetchMessages = useCallback(async () => {
         try {
@@ -117,12 +119,12 @@ export default function MessageList({ userId, friendId }: { userId: number, frie
                 className={`p-2 rounded max-w-[75%] ${
                   message.sender_id === userId
                     ? 'border border-blue-400 bg-blue-500 text-white'
-                    : 'border border-blue-900 bg-gray-900 text-blue-500'
+                    : `border ${theme === 'light' ? 'bg-gray-200 border-blue-700' : 'bg-gray-900 border-blue-900'} text-blue-500`
                 }`}
               >
                 {formatMessage(message.content, message.sender_id === userId)}
                 {message.timestamp && (
-                  <div className="text-xs text-right text-gray-300">{new Date(message.timestamp).toLocaleString()}</div>
+                  <div className={`text-xs text-right ${theme === 'light' ? 'text-blue-300' : 'text-gray-300'}`}>{new Date(message.timestamp).toLocaleString()}</div>
                 )}
               </div>
             </div>

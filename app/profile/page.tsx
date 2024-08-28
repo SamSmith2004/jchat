@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { CustomSession } from '@/app/types/customSession';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 export default function Profile() {
     const { data: session, status } = useSession() as { data: CustomSession | null, status: "loading" | "authenticated" | "unauthenticated" };
@@ -20,6 +21,7 @@ export default function Profile() {
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [bannerPreview, setBannerPreview] = useState<string | null>(null);
     const bannerInputRef = useRef<HTMLInputElement>(null);
+    const { theme } = useTheme();
 
     useEffect(() => {
         if (session?.user?.username) {
@@ -128,7 +130,7 @@ export default function Profile() {
     }
 
     return (
-        <main className="flex flex-col">
+        <main className={`flex flex-col min-h-screen ${theme === 'light' ? 'bg-white' : 'bg-black'}`}>
             <Navbar />
             <div className="flex flex-col items-center">
                 <div className="w-full h-40 relative overflow-hidden">
@@ -141,82 +143,82 @@ export default function Profile() {
                         onError={() => setBannerPreview('https://images.pexels.com/photos/281260/pexels-photo-281260.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')}
                     />
                 </div>
-            <div className="flex items-center z-10 -mt-16">
-                <div className="rounded-full border-4 border-blue-900 overflow-hidden">
-                    <Image 
-                        src={avatarSrc}
-                        alt="User profile image"
-                        width={120}
-                        height={120}
-                        onError={() => setAvatarPreview('/uploads/default-avatar.png')}
-                    />
+                <div className="flex items-center z-10 -mt-16">
+                    <div className="rounded-full border-4 border-blue-900 overflow-hidden">
+                        <Image 
+                            src={avatarSrc}
+                            alt="User profile image"
+                            width={120}
+                            height={120}
+                            onError={() => setAvatarPreview('/uploads/default-avatar.png')}
+                        />
+                    </div>
+                    <h1 className="text-5xl text-blue-500 mt-12 ml-5">{username || 'unknown'}!</h1>
                 </div>
-                <h1 className="text-5xl text-blue-500 mt-12 ml-5">{username || 'unknown'}!</h1>
-            </div>
-            {error && <p className="text-red-500 mt-4">{error}</p>}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-5">
-                <div className="flex flex-col items-center">
-                    <label className="text-2xl text-blue-500">Username</label>
-                    <input
-                        className="border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400 placeholder:text-blue-400 mt-2 w-96 p-2"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                </div>
-                <div className="flex flex-col items-center">
-                    <label className="text-2xl text-blue-500">About Me</label>
-                    <textarea
-                        className="resize-none border-2 border-blue-900 rounded-md bg-gray-900 text-blue-400 placeholder:text-blue-400 mt-2 w-96 h-32 pt-2 pl-2"
-                        placeholder="Tell us about yourself"
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                    />
-                </div>
-                <div className="flex flex-col items-center">
-                    <label className="text-2xl text-blue-500">Avatar</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAvatarChange}
-                        ref={fileInputRef}
-                        className="hidden"
-                    />
-                    <button 
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="hover:font-bold mt-4 px-4 py-2 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
-                    >
-                        Change Avatar
-                    </button>
-                </div>
-                <div className="flex flex-col items-center">
-                    <label className="text-2xl text-blue-500">Banner</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleBannerChange}
-                        ref={bannerInputRef}
-                        className="hidden"
-                    />
-                    <button 
-                        type="button"
-                        onClick={() => bannerInputRef.current?.click()}
-                        className="hover:font-bold mt-4 px-4 py-2 bg-gray-900 border border-blue-900 text-blue-500 font-semibold rounded text-lg"
-                    >
-                        Change Banner
-                    </button>
-                </div>
-                <div className="flex flex-col items-center">
-                    <button 
-                        type="submit" 
-                        className="hover:font-extrabold w-1/2 mt-4 px-2 py-2 bg-gray-900 border border-blue-900 text-blue-600 font-semibold rounded text-lg disabled:opacity-50"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Saving...' : 'Save'}
-                    </button>
-                </div>
-            </form>
+                {error && <p className="text-red-500 mt-4">{error}</p>}
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-5">
+                    <div className="flex flex-col items-center">
+                        <label className="text-2xl text-blue-500">Username</label>
+                        <input
+                            className={`border-2 border-blue-900 rounded-md ${theme === 'light' ? 'bg-gray-400 text-black' : 'bg-gray-900 text-blue-400'} placeholder:text-blue-400 mt-2 w-96 p-2`}
+                            placeholder="Username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <label className="text-2xl text-blue-500">About Me</label>
+                        <textarea
+                            className={`resize-none border-2 border-blue-900 rounded-md ${theme === 'light' ? 'bg-gray-400 text-black' : 'bg-gray-900 text-blue-400'} placeholder:text-blue-400 mt-2 w-96 h-32 pt-2 pl-2`}
+                            placeholder="Tell us about yourself"
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <label className="text-2xl text-blue-500">Avatar</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarChange}
+                            ref={fileInputRef}
+                            className="hidden"
+                        />
+                        <button 
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className={`hover:font-bold mt-4 px-4 py-2 ${theme === 'light' ? 'bg-gray-400 text-black' : 'bg-gray-900 text-blue-500'} border border-blue-900 font-semibold rounded text-lg`}
+                        >
+                            Change Avatar
+                        </button>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <label className="text-2xl text-blue-500">Banner</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleBannerChange}
+                            ref={bannerInputRef}
+                            className="hidden"
+                        />
+                        <button 
+                            type="button"
+                            onClick={() => bannerInputRef.current?.click()}
+                            className={`hover:font-bold mt-4 px-4 py-2 ${theme === 'light' ? 'bg-gray-400 text-black' : 'bg-gray-900 text-blue-500'} border border-blue-900 font-semibold rounded text-lg`}
+                        >
+                            Change Banner
+                        </button>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <button 
+                            type="submit" 
+                            className={`hover:font-extrabold w-1/2 mt-4 px-2 py-2 ${theme === 'light' ? 'bg-gray-400 text-black' : 'bg-gray-900 text-blue-600'} border border-blue-900 font-semibold rounded text-lg disabled:opacity-50`}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Saving...' : 'Save'}
+                        </button>
+                    </div>
+                </form>
             </div>
         </main>
     );

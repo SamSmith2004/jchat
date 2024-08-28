@@ -2,30 +2,22 @@
 import { SessionProvider } from "next-auth/react"
 import useHandleStatus from "./components/status/handleStatus";
 import { NotifSocket } from "@/lib/notifUtils";
-import { useState, useEffect } from 'react';
+import { ThemeProvider } from "@/app/components/theme/themeProvider";
 
 export default function ClientLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [darkMode, setDarkMode] = useState(true);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
   return (
     <SessionProvider>
-      <StatusHandler>
-        <NotificationHandler>
-          {children}
-        </NotificationHandler>
-      </StatusHandler>
+      <ThemeProvider>
+        <StatusHandler>
+          <NotificationHandler>
+            {children}
+          </NotificationHandler>
+        </StatusHandler>
+      </ThemeProvider>
     </SessionProvider>
   );
 }

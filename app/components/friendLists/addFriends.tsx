@@ -2,10 +2,12 @@
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CustomSession } from '@/app/types/customSession'; 
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 export default function AddFriend() {
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('');
+    const { theme } = useTheme();
 
     const { data: session } = useSession() as { data: CustomSession | null };
 
@@ -78,7 +80,7 @@ export default function AddFriend() {
                         onChange={(e) => setUsername(e.target.value)}
                         className='border border-gray-300 p-2 rounded-md rounded-r-none'
                     />
-                    <button type="submit" className='hover:font-bold border border-blue-900 bg-gray-900 h-full rounded-md rounded-l-none p-2'>Add</button>
+                    <button type="submit" className={`hover:font-bold border ${theme === 'light' ? 'bg-gray-200 border-blue-700' : 'bg-gray-900 border-blue-700'} h-full rounded-md rounded-l-none p-2`}>Add</button>
                 </div>
             </form>
             <h2 className='font-bold text-lg'>{message && <p>{message}!</p>}</h2>

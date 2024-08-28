@@ -5,6 +5,7 @@ import AllFriends from "@/app/components/friendLists/allFriends";
 import PendingFriends from "@/app/components/friendLists/pendingFriends";
 import Blocked from "@/app/components/friendLists/blocked";
 import AddFriend from "@/app/components/friendLists/addFriends";
+import { useTheme } from '@/app/components/theme/themeProvider';
 
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -16,6 +17,7 @@ export default function Friends() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [listType, setListType] = useState<ListType>("all");
+    const { theme } = useTheme();
 
     useEffect(() => {
         const paramValue = searchParams.get("list");
@@ -50,7 +52,7 @@ export default function Friends() {
     }
 
     return (
-        <main className="flex flex-col">
+        <main className={`flex flex-col ${theme === 'light' ? 'bg-white' : 'bg-black'}`}>
             <Navbar />
             <div className="flex justify-between items-start"> 
                 <div className='flex space-y-5 flex-col border-r border-blue-900 pt-5 pr-20 pl-10 text-blue-500 h-screen w-1/5'>
