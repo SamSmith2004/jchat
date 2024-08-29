@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
 type Theme = 'dark' | 'light';
 type ThemeContextType = {
@@ -11,7 +11,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTheme = async () => {
@@ -22,7 +21,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           setTheme(data.theme as Theme);
         }
       } catch (error) {
-        setError('Error fetching theme');
         console.error('Failed to fetch theme:', error);
       } finally {
         setLoading(false);
@@ -43,12 +41,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
 
+  const contextValue = useMemo(() => ({ theme, toggleTheme }), [theme]);
+
   if (loading) {
-    return <div className='text-blue-500 font-extrabold text-xl text-center m-20'>Loading...</div>; 
+    return <div className='text-blue-500 font-extrabold text-center m-20'>Loading...</div>;
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );
