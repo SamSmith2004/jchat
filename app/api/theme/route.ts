@@ -1,23 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pool } from '@/backend/src/config/database';
 import { getServerSession } from 'next-auth/next';
 import { authConfig } from '@/lib/auth';
+import Redis from 'ioredis';
+
+const redis = new Redis({
+  host: '100.106.217.25',
+  port: 30036
+});
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authConfig);
-  if (!session || !session.user?.id) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const userId = session.user.id;
 
   try {
-    const [rows]: any[] = await pool.query('SELECT theme FROM user_themes WHERE user_id = ?', [userId]);
-    if (rows.length === 0) {
-      // If user doesn't exist, create a new one with default theme
-      await pool.query('INSERT INTO user_themes (user_id, theme) VALUES (?, ?)', [userId, 'dark']);
-      return NextResponse.json({ theme: 'dark' });
+    let theme = await redis.get(`theme:${userId}`);
+    if (!theme) {
+      theme = 'dark'; 
+      await redis.set(`theme:${userId}`, theme);
     }
-    return NextResponse.json({ theme: rows[0].theme });
+    return NextResponse.json({ theme });
   } catch (error) {
     console.error('Failed to fetch theme:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -26,7 +30,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authConfig);
-  if (!session || !session.user?.id) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const userId = session.user.id;
@@ -37,15 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Check if user exists
-    const [existingUser]: any[] = await pool.query('SELECT id FROM user_themes WHERE user_id = ?', [userId]);
-
-    if (existingUser.length === 0) {
-      await pool.query('INSERT INTO user_themes (user_id, theme) VALUES (?, ?)', [userId, theme]);
-    } else {
-      await pool.query('UPDATE user_themes SET theme = ? WHERE user_id = ?', [theme, userId]);
-    }
-
+    await redis.set(`theme:${userId}`, theme);
     return NextResponse.json({ message: 'Theme updated successfully' });
   } catch (error) {
     console.error('Failed to update theme:', error);
