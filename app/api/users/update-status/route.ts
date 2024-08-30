@@ -1,14 +1,19 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authConfig } from '@/lib/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req });
-
-  if (!session) {
-    return res.status(401).json({ error: 'Unauthorized' });
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authConfig);
+  
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { userId, status } = req.body;
+  const { userId, status } = await request.json();
+
+  if (userId !== session.user.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   try {
     const response = await fetch('http://localhost:8080/api/user-status', {
@@ -21,9 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw new Error('Failed to update status');
     }
 
-    res.status(200).json({ message: 'Status updated successfully' });
+    return NextResponse.json({ message: 'Status updated successfully' }, { status: 200 });
   } catch (error) {
     console.error('Error updating status:', error);
-    res.status(500).json({ error: 'Failed to update status' });
+    return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
   }
 }
