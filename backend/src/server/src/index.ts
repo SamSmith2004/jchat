@@ -3,6 +3,10 @@ import http from 'http';
 import { Server, Socket } from 'socket.io';
 import cors from 'cors';
 import Redis from 'ioredis';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../../../../.env') }); 
 
 interface CustomSocket extends Socket {
   user?: {
@@ -20,9 +24,15 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
+const redis_host = process.env.REDIS_HOST;
+
+if (!redis_host) {
+  console.error('REDIS_HOST is not set in the environment variables');
+  process.exit(1);
+}
 
 const redis = new Redis({
-  host: '100.106.217.25',
+  host: redis_host,
   port: 30036
 });
 
