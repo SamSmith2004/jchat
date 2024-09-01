@@ -1,3 +1,3 @@
 # TODO
 - Impement groupChats/servers [ON-HOLD]
-- [BUG] User status trapped on broswer close on FireFox
+- [BUG] Firefox users status does not update to offlien when closing browser
