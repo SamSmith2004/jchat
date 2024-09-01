@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '@/backend/src/config/database';
 import { RowDataPacket } from 'mysql2';
-import { io } from '@/backend/src/server/src/index'; 
+import { notifications } from '@/backend/src/server/src/index'; 
 
 interface UserCountResult extends RowDataPacket {
     count: number;
@@ -52,9 +52,8 @@ export async function POST(req: NextRequest) {
             [senderId]
         );
         const senderName = senderResult[0]?.username;
-          
-        // Emit notification using the imported io instance
-        io.of('/notifications').to(receiverId.toString()).emit('new_notification', {
+
+        notifications.to('/notifications').to(receiverId.toString()).emit('new_notification', {
             id: messageId,
             content: `New message from ${senderName}`,
             sender_name: senderName,

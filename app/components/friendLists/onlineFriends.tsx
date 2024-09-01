@@ -118,6 +118,7 @@ export default function OnlineFriends() {
 
   return (
     <>
+    <h1 className="text-blue-500 text-2xl font-bold">Friends:</h1>
       {friends.length > 0 ? (
         friends.map(friend => (
           <div key={friend.id} className="flex space-x-5">

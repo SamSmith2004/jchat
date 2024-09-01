@@ -20,7 +20,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://localhost:8080"],
+    origin: ["http://localhost:3000", "https://localhost:8081"],
     methods: ["GET", "POST"]
   }
 });
@@ -109,6 +109,4 @@ notifications.on('connection', (socket: CustomSocket) => {
   });
 });
 
-const PORT = 8080;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-export { io };
+export { app, server, redis, userStatus, messaging, notifications };
